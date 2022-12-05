@@ -1,0 +1,21 @@
+﻿@using SAM.NUGET.Resources
+@model List<ReportModuleResource>
+
+@{
+    <div class="list-group list-group-flush">
+        @if(Model is null == false && Model.Count > 0)
+        {
+            foreach(var module in Model)
+            {
+                <a 
+                    id="@module.IdName" 
+                    href="@($"#{module.UrlSegmentName}")" 
+                    class="list-group-item list-group-item-action rds-bg-blue rds-txt-white module-lnk"
+                    data-module-id="@module.Id"
+                >
+                    @module.DisplayName
+                </a>
+            }
+        }
+    </div>
+}

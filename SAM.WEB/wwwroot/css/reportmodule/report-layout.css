@@ -1,0 +1,87 @@
+﻿body, html {
+    font-weight: 400;
+    font-style: normal;
+    font-size: 90%;
+}
+
+.rds-margin-top {
+    margin-top: 45px;
+}
+
+li.nav-item > a.nav-link.rds-white {
+    color: white;
+}
+
+body.ajax-loader{
+    overflow: hidden;
+}
+
+body.ajax-loader .loading-bar {
+    display: block;
+}
+
+.table .rds-thead-dark th {
+    color: #fff;
+    background-color: #2d1aa2 !important;
+    border-color: #32383e;
+}
+
+.table .rds-thead-dark th {
+    color: #fff;
+    border-color: #dee2e6;
+}
+
+.rds-scroll-div {
+    height: 65vh;
+    overflow-y: scroll;
+    border: 1px solid #E4E0E0;
+}
+
+.rds-hidden{
+    display:none;
+}
+
+a.dropdown-item-hover:hover {
+    background-color: lightcoral;
+    color: white;
+}
+
+.dynamic-content-container {
+    border-top: 10px;
+    border-bottom: 10px;
+    border-left: 10px;
+    background-color: white;
+}
+
+.rds-hidden {
+    display: none;
+}
+
+.rds-hiden {
+    display: none;
+}
+
+.row-highlight {
+    background-color: yellow;
+}
+
+a.list-group-item.list-group-item-action:hover {
+    background-color: deeppink !important;
+    color: white;
+}
+
+.rds-bg-blue {
+    background-color: #343a40 !important;
+}
+
+.rds-txt-white {
+    color: white;
+}
+
+#report-category-wrapper {
+    background-color: #343a40!important;
+}
+
+.rds-list-group-item-action-bg {
+    background-color: red !important;
+}

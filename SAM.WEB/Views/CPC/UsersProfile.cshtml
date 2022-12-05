@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+
+@section Scripts{
+
+    <script>$(document).ready(function () {
+
+    let navigationUrl = `/cpc/configurations/users-profile`;
+
+            window.location.hash = "#" + navigationUrl;
+
+        });</script>
+}
+

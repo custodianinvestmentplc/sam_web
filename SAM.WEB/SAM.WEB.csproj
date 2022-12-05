@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>SAM.WEB</RootNamespace>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>6</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\Project Exports</OutputPath>
+    <WarningLevel>4</WarningLevel>
+    <AssemblyName>CPC_Test</AssemblyName>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="ClientApp\src\js\**" />
+    <Compile Remove="ClientApp\src\js\**" />
+    <Compile Remove="ClientApp\**" />
+    <Compile Remove="ClientApp\src\js\**" />
+    <Content Remove="ClientApp\src\cpc\**" />
+    <EmbeddedResource Remove="ClientApp\src\cpc\**" />
+    <None Remove="ClientApp\src\cpc\**" />
+    <None Remove="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" />
+    <None Remove="Views\CPC\" />
+    <Content Remove="wwwroot\cpc_files\" />
+    <Content Remove="wwwroot\cpc_files\comedy-logo-illustration-theme-performances-stand-up-etc-178212650.jpg" />
+    <None Remove="Swashbuckle.AspNetCore" />
+    <None Remove="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.42.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\CPC\" />
+    <Folder Include="wwwroot\cpc_files\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SAM.NUGET\SAM.NUGET.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

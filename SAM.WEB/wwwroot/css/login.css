@@ -1,0 +1,59 @@
+﻿#header {
+    color: #a20b40;
+    font-size: 50px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.btn-custom {
+    background-color: #a20b40;
+    color: white;
+}
+
+    .btn-custom:hover {
+        background-color: white;
+        color: #a20b40;
+        border-color: #a20b40;
+    }
+
+.form-control {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom-color: #a20b40;
+    border-width: 2px;
+    border-radius: 0%;
+}
+
+#card {
+    margin-top: 13%;
+}
+
+button {
+    margin-bottom: 10px;
+}
+
+.card-body h5 {
+    margin-top: 23px;
+}
+
+.itm .itm-card {
+    margin: 20px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+}
+
+.itm-card-img {
+    width: 80px;
+    padding: 9px;
+}
+
+.itm-card-img img {
+    border: 1px solid black;
+    width: 70px;
+    cursor: pointer;
+}
+
+.itm-card-data {
+    width: calc(100% - 80px);
+}

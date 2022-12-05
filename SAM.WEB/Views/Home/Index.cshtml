@@ -1,0 +1,100 @@
+﻿@model SAM.NUGET.ViewModels.IndexViewModel
+
+@{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+
+    @using Microsoft.Extensions.Configuration
+    @inject IConfiguration configuration
+
+    ViewData["Title"] = "Welcome Page";
+
+    var welcomeMessage = configuration.GetValue<string>("AppConstants:welcomeMessage");
+    var acronymMeaning = configuration.GetValue<string>("AppConstants:acronymMeaning");
+    var loginMessage = configuration.GetValue<string>("AppConstants:loginMessage");
+
+    var loginPadding = "";
+    if (Model.ExceptionType == "Access Denied") loginPadding = "p-3";
+}
+
+
+<div class="d-md-flex h-md-100 align-items-center">
+    <div class="col-md-6 p-0 h-md-100" style="background-color: lightgray">
+        <div class="text-white d-md-flex align-items-center h-100 px-3 text-center justify-content-center">
+            <div class="logoarea">
+                <div class="position-relative border">
+                    <img src="images/pexels-essow-936722.jpg" class="card-img opacity-50" alt="login-logo">
+                    <div class="shadow-lg p-0 text-white bg-light position-absolute top-50 start-50 translate-middle">
+                        <div class="d-md-flex flex-column">
+                            <h1 class="display-4 text-center text-danger shadow-lg ">@welcomeMessage</h1>
+                            <div class="">
+                                <div><h3 class="text-center text-black">@acronymMeaning</h3></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 p-0 bg-white h-md-100 loginarea">
+        <div class="d-md-flex align-items-center h-md-100 p-5 justify-content-center">
+            <div class="row row-cols-md-auto mb-3 d-flex flex-column">
+                <form method="post" class="row row-cols-md-auto g-2 align-items-center m-0 mb-3 d-flex flex-column">
+
+                    <div class="card @loginPadding">
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ErrorTitle))
+                        {
+                            <h5 class="card-title text-center mb-2" id="header"><i class="bi bi-exclamation-octagon-fill"></i> @Model.ExceptionType</h5>
+                            <h6 class="text-center text-danger">@Model.ErrorTitle</h6>
+                            <span class="text-center">@Model.ErrorDescription</span>
+
+                            @if (Model.ExceptionType == "Authentication Error")
+                            {
+                                <hr>
+
+                                <div class="card-body row justify-content-center p-0 px-5 pb-3">
+                                    <div class="col-auto d-lg-block p-0 m-md-1 align-self-center">
+                                        <img src="images/ms_logo.png" alt="Microsoft logo" class="img-thumbnail img-fluid" style="object-fit: none; max-width:40px;" />
+                                    </div>
+                                    <div class="col-auto col-md-9 col-xl-auto align-self-center">
+                                        <button asp-action="Login" asp-controller="Home" type="submit" class="shadow-lg btn btn-danger btn-md">
+                                            <p class="card-text">Try another <u><b>login</b></u> credential</p>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            }
+                        }
+                        else
+                        {
+                            <h5 class="card-title text-center mb-2" id="header">S.A.M<sup style="font-size: 25px;">&#8482</sup></h5>
+                            <h6 class="text-center">Custodian Investment Plc.</h6>
+                            <hr>
+
+                            <div class="card-body row justify-content-center p-0 px-5 pb-3">
+                                <div class="col-auto d-lg-block p-0 m-md-1 align-self-center">
+                                    <img src="images/ms_logo.png" alt="Microsoft logo" class="img-thumbnail img-fluid" style="object-fit: none; max-width:40px;" />
+                                </div>
+                                <div class="col-auto col-md-9 col-xl-auto align-self-center">
+                                    <button asp-action="Login" asp-controller="Home" type="submit" class="shadow-lg btn btn-danger btn-md">
+                                        <p class="card-text">Please click <u><b>here</b></u> to Login with Office365</p>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts{
+
+    <script>document.title = 'SAM - Login Page';</script>
+}
+

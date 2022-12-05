@@ -1,0 +1,12 @@
+﻿@model SAM.NUGET.Models.ModuleInitOptions
+
+@{
+    Layout = "~/Views/Shared/_ReportLayout.cshtml";
+}
+
+@section ReportModuleSection
+{
+    @await Component.InvokeAsync("UserModules", new { userName = Model.UserEmail })
+}
+
+<div>Welcome @Model.UserEmail to InsurePool Application</div>

@@ -1,0 +1,358 @@
+﻿@{
+    @using Microsoft.Extensions.Configuration
+    @inject IConfiguration configuration
+
+    var headTitle = configuration.GetValue<string>("AppConstants:headTitle");
+
+    var currentMoment = DateTime.Now.ToString("dddd, dd MMMM yy");
+
+    @*ViewData["Title"] = configuration.GetValue<string>("AppConstants:profileIndexPageTitle");*@
+}
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    @*<title>@headTitle - @ViewData["Title"]</title>*@
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet">
+
+    @*<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+        asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+        crossorigin="anonymous">*@
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.9.1/font/bootstrap-icons.min.css"
+          integrity="sha512-5PV92qsds/16vyYIJo3T/As4m2d8b6oWYfoqV+vtizRB6KhF1F9kYzWzQmsO6T3z3QG2Xdhrx7FQ+5R1LiQdUA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
+
+
+    <link href="~/css/login.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/css/mysite.css" asp-append-version="true" rel="stylesheet" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/table-filter-style.css" />
+</head>
+
+
+<body>
+
+    @*<vc:preloader />*@
+
+    <partial name="_BusyIndicatorPartial" />
+
+    @if (ViewBag.ShowLayout)
+    {
+        @*ViewData["Title"] = "CPC Hub";*@
+
+        <div class="text-center">
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-primary border-bottom box-shadow py-3">
+                <div class="px-5">
+                    <div class="shadow-sm" style="position: absolute; left: 15px; ">
+                        <span class="page-header-title">
+                            <a class="navbar-brand fs-3 text-white" asp-area="" asp-controller="Home" asp-action="SAMIndex">
+                                @*<i class="bi bi-chevron-left fs-4 text-primary" aria-label="Top endorsed"></i> &nbsp;@headTitle*@
+                                @headTitle
+                            </a>
+                        </span>
+                    </div>
+                    @if (ViewBag.Username != null)
+                    {
+                        <div class="col" style="position:absolute; right:0px; padding-right: 200px;">
+                            <div class="col">
+                                <h3 class="page-header-title text-white">@ViewBag.Username &nbsp; <i class="bi bi-person-circle fs-4 text-white" aria-label="Top endorsed"></i></h3>
+                            </div>
+                        </div>
+                    }
+                    <div class="pb-3">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                                aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between pb-4">
+                            <ul class="navbar-nav flex-grow-1">
+                                <li class="nav-item">
+                                    <div class="md-toggle row">
+                                        <div class="col shadow-sm">
+                                            <a class="nav-link btn btn-sm btn-light text-black" href="https://login.microsoftonline.com/logout.srf">Logout</a>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="d-flex" style="min-height:100vh;">
+
+                <div class="col-2 border pt-2" style="width:250px">
+                    <div class="shadow-lg p-2">
+                        <a asp-controller="Home" asp-action="Modules" class="col-3">
+                            <i class="bi bi-arrow-left fs-1 text-secondary"></i>
+                            @*<i class="bi bi-chevron-left fs-1 text-secondary"></i>*@
+                        </a>
+
+                        <span class="fs-1">&nbsp; CPC</span>
+                    </div>
+
+                    <div class="p-0">
+                        <div class="accordion accordion-flush" id="accordionFlush">
+
+                            @if (ViewBag.Module == "member" || ViewBag.Module == "agent" || ViewBag.Module == "admin" || ViewBag.Module == "client")
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingFlushOne">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFlushOne" aria-expanded="false" aria-controls="collapseFlushOne">
+
+                                            <strong>Data Capture</strong>
+
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFlushOne" class="accordion-collapse collapse" aria-labelledby="headingFlushOne" data-bs-parent="#accordionFlush">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group" role="tablist">
+
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="CreateProposalPack" class="list-group-item list-group-item-action text-primary"><span>&nbsp; New Proposal Pack</span></a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="GetDraftProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Draft Proposal Pack</span></a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="SubmittedProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Submitted Proposal Pack</span></a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (ViewBag.Module == "admin" || ViewBag.Module == "client")
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingFlushTwo">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFlushTwo" aria-expanded="false" aria-controls="collapseFlushTwo">
+
+                                            <strong>Document Review</strong>
+
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFlushTwo" class="accordion-collapse collapse" aria-labelledby="headingFlushTwo" data-bs-parent="#accordionFlush">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group" role="tablist">
+
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="InboundProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Inbound Proposal Packs</span></a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="WIPProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; WIP Proposals</span></a>
+                                                <a style="text-align: left;" href="#/cpc/doc-review/search" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Search History</span></a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (ViewBag.Module == "client")
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingFlushThree">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFlushThree" aria-expanded="false" aria-controls="collapseFlushThree">
+
+                                            <strong>Document Policy</strong>
+
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFlushThree" class="accordion-collapse collapse" aria-labelledby="headingFlushThree" data-bs-parent="#accordionFlush">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group" role="tablist">
+
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="AcceptedProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; View Pending Reviews</span></a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="ApprovedProposalPacks" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Approved Proposal Packs</span></a>
+                                                <a style="text-align: left;" href="#/cpc/doc-processing/seach-history" class="list-group-item list-group-item-action text-primary"><span>&nbsp; Search History</span></a>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="container-fluid p-0" style="background-color: whitesmoke;">
+                    <div id="content-placeholder" class="p-3 pb-0">
+                        <partial name="_Notifications" />
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    else
+    {
+        <main role="main" class="p-0 container-fluid">
+            @RenderBody()
+        </main>
+    }
+
+    @if (IsSectionDefined("Component"))
+    {
+        @RenderSection("Component", false)
+    }
+
+    @*@if (ViewBag.ShowLayout)
+        {
+        <footer class="border-top footer text-muted" style="position: fixed; bottom:0;">
+        <div class="container">
+        &copy; 2022 - SAM.WEB - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+        </footer>
+        }*@
+
+    @*<script src="~/js/bootstrap-modal.js" asp-append-version="true"></script>*@
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"
+            asp-fallback-src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="~/js/login.bundle.js" asp-append-version="true"></script>
+
+    <script src="~/js/app.bundle.js" asp-append-version="true"></script>
+
+    <script src="~/js/table-filter-bundle.js"></script>
+
+    <script src="~/js/lookup.bundle.js" asp-append-version="true"></script>
+
+    <script>$(document).ready(function () {
+
+            let selectedCollapse = sessionStorage.getItem('selectedCollapse');
+
+            if (selectedCollapse != null) {
+
+                $('.accordion .collapse').removeClass('show');
+
+                $(selectedCollapse).addClass('show');
+            }
+
+            $('.accordion .accordion-button').on('click', function () {
+
+                let target = $(this).data('bs-target');
+                sessionStorage.setItem('selectedCollapse', target);
+            });
+
+
+            });</script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+    @*let selectedTab = sessionStorage.getItem('selectedTab');
+    let selectedTabHost = sessionStorage.getItem('selectedTabHost');
+
+    if (selectedTab && selectedTabHost) {
+
+        $('.tab-content .tab-pane').removeClass('show active');
+        $('.supporting-doc-tab-btn').removeClass('active');
+        $('.supporting-doc-tab-btn').attr('aria-selected', 'false');
+
+        $(selectedTab).addClass('show active');
+        $('#' + selectedTabHost).addClass('active');
+        $('#' + selectedTabHost).attr('aria-selected', 'true');
+    }
+
+    $('.supporting-doc-tab-btn').on('click', function () {
+
+        let target = $(this).data('bs-target');
+        let targetHost = $(this).attr('id');
+
+        sessionStorage.setItem('selectedTab', target);
+        sessionStorage.setItem('selectedTabHost', targetHost);
+    });*@
+
+
+
+
+@*var layoutContentDiv = document.getElementById('content-placeholder');
+
+    layoutContentDiv.addEventListener('DOMSubtreeModified', function () {
+
+        let selectedTab = sessionStorage.getItem('selectedTab');
+
+        if (selectedTab != null) {
+
+            $('.tab-content .tab-content').removeClass('show');
+
+            $(selectedTab).addClass('show');
+        }
+
+        $('button[data-bs-toggle="tab"]').on('click', function () {
+
+            let target = $(this).data('bs-target');
+            sessionStorage.setItem('selectedTab', target);
+        });
+    });*@
+
+
+@*setupTabEventHandler() {
+
+        let selectedTab = sessionStorage.getItem('selectedTab');
+        let selectedTabHost = sessionStorage.getItem('selectedTabHost');
+        const tabs = document.getElementsByClassName('tab-pane');
+        const tabBtns = document.getElementsByClassName('supporting-doc-tab-btn');
+
+        if (selectedTab && selectedTabHost) {
+
+
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('show active');
+            };
+
+            for (var j = 0; j < tabBtns.length; j++) {
+
+                tabBtns[j].classList.remove('active');
+                tabBtns[j].setAttribute('aria-selected', 'false');
+            };
+
+            const divToShow = document.querySelector(selectedTab);
+            const btnToShow = document.getElementById(selectedTabHost);
+
+            divToShow?.classList.add('show active');
+            btnToShow?.classList.add('active');
+            btnToShow?.setAttribute('aria-selected', 'true');
+        }
+
+        for (var j = 0; j < tabBtns.length; j++) {
+
+            tabBtns[j].addEventListener('click', (e) => {
+
+                let target = (e.target as HTMLButtonElement).getAttribute('data-bs-target') as string;
+                let targetHost = (e.target as HTMLButtonElement).id;
+
+                sessionStorage.setItem('selectedTab', target);
+                sessionStorage.setItem('selectedTabHost', targetHost);
+            });
+        };
+    }*@

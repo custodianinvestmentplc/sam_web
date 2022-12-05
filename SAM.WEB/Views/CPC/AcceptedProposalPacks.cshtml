@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+}
+
+
+@section Scripts{
+
+    <script>$(document).ready(function () {
+
+    let navigationUrl = `/cpc/doc-processing/pending-reviews`;
+
+            window.location.hash = "#" + navigationUrl;
+
+        });</script>
+}
+

@@ -1,0 +1,249 @@
+﻿html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+/*body {
+    margin-bottom: 60px;
+}*/
+
+
+.se-pre-con {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url(images/loader-64x/Preloader_1.gif) center no-repeat #fff;
+}
+
+
+
+.bg-image {
+    background-image: url('images/Landing_img.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+
+@media (min-width: 768px) {
+    .h-md-100 {
+        height: 100vh;
+    }
+}
+
+.btn-round {
+    border-radius: 30px;
+}
+
+.bg-indigo {
+    background: indigo;
+}
+
+.text-cyan {
+    color: #35bdff;
+}
+
+@media (min-width: 576px) {
+    .md-toggle {
+        position: absolute;
+        right: 15px;
+    }
+}
+
+/*#spinner {
+    visibility: hidden;
+}
+
+body.busy .spinner {
+    visibility: visible !important;
+}*/
+
+
+
+
+.wrapper {
+    display: flex;
+    width: 100%;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background-color: black;
+    color: #fff;
+    transition: all 0.3s;
+    margin-top: 0px;
+    position: fixed;
+    height: 100%;
+}
+
+#content {
+    width: 100%;
+    margin-left: 250px;
+    padding: 20px 0px 20px 0px;
+    transition: all 0.3s;
+    min-height: 90vh;
+    margin-top: 50px;
+    position: relative;
+}
+
+.bi-caret-down-fill {
+    float: right;
+    padding-right: 10px;
+}
+
+.rds-pointer {
+    cursor: pointer;
+}
+
+.sidenav {
+    overflow: hidden;
+    padding-top: 20px;
+    background-color: black;
+}
+
+.sidenav a,
+.dropdown-btn {
+    padding: 6px 8px 6px 18px;
+    text-decoration: none;
+    color: #818181;
+    display: block;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+}
+
+.dropdown-btn {
+    background-color: black;
+    color: #fff;
+}
+
+.sidenav a:hover,
+.dropdown-btn:hover {
+    color: #f1f1f1;
+}
+
+.rds-active {
+    background-color: green;
+    color: white;
+}
+
+.dropdown-container {
+    display: none;
+    background-color: #262626;
+    padding-left: 8px;
+}
+
+ul.rds-styled-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 5px;
+}
+
+.content-header-nav {
+    position: fixed;
+    top: 0;
+    left: 250px;
+    width: 100%;
+    height: 50px;
+    background-color: purple;
+    color:white;
+    z-index:1350;
+    padding:10px;
+}
+
+.content-body {
+    position: relative;
+    width: 100%;
+}
+
+#content-placeholder {
+    padding-left: 20px;
+}
+
+.rds-hidden {
+    display: none;
+}
+
+/* ---------------------------------------------------
+    SPINNER
+----------------------------------------------------- */
+.loading {
+    position: fixed;
+    z-index: 1531;
+    height: 1em;
+    width: 1em;
+    overflow: visible;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* ---------------------------------------------------
+    SEARCH BOX
+----------------------------------------------------- */
+.has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+/* ---------------------------------------------------
+    CUSTOMISE BOOTSTRAP MODAL
+----------------------------------------------------- */
+.modal-dialog {
+    margin-top: 15vh;
+}
+
+/* ---------------------------------------------------
+    WIZARD STYLING
+----------------------------------------------------- */
+div.step {
+    display: none;
+}
+
+div.step.active {
+    display: block;
+}
+
+div.disable-div {
+    pointer-events: none;
+    opacity: 0.5
+}
+
+.rds-fixed-table-header {
+    height: 45vh;
+    overflow-y: scroll;
+    border: 1px solid black;
+}
+
+.rds-active-row {
+    background-color: green;
+    color: white;
+}

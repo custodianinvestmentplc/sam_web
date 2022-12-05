@@ -1,0 +1,119 @@
+﻿.rds-css-navbar {
+    overflow: hidden;
+    background-color: #333;
+}
+
+.rds-css-navbar a {
+    float: left;
+    font-size: inherit;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.rds-css-dropdown {
+    float: left;
+    overflow: hidden;
+}
+
+.rds-css-dropdown .rds-css-dropbtn {
+    font-size: inherit;
+    border: none;
+    outline: none;
+    color: white;
+    padding: 14px 16px;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+}
+
+.rds-css-navbar a:hover, .rds-css-dropdown:hover .rds-css-dropbtn {
+    background-color: red;
+}
+
+.rds-css-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.rds-css-dropdown-content a {
+    float: none;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.rds-css-dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.rds-css-dropdown:hover .rds-css-dropdown-content {
+    display: block;
+}
+
+div.disable-div {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* ---------------------------------------------------
+    SEARCH BOX
+----------------------------------------------------- */
+.has-search .form-control {
+    padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+/* ---------------------------------------------------
+    SPINNER
+----------------------------------------------------- */
+/* Absolute Center Spinner */
+.loading {
+    position: fixed;
+    /*display: none;*/
+    z-index: 1031;
+    height: 2em;
+    width: 2em;
+    overflow:visible;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* ---------------------------------------------------
+    SCROLLABLE TABLE
+----------------------------------------------------- */
+
+.rds-scrollable {
+    height: 65vh;
+    overflow-y: scroll;
+}
+
+.rds-solid-border {
+    border: 1px solid black;
+}
+
+th.table-scrollable {
+    position: sticky;
+    top: 0;
+}

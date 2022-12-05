@@ -1,0 +1,17 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+
+@section Scripts{
+
+    <script>$(document).ready(function () {
+
+    let navigationUrl = `/cpc/configurations/template-settings?templateType=CPC_Product`;
+
+            window.location.hash = "#" + navigationUrl;
+
+        });</script>
+}
+
