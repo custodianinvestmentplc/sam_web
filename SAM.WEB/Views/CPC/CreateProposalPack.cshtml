@@ -1,73 +1,237 @@
-﻿
+﻿@model SAM.WEB.Payloads.NewProposalPack
+
 @{
     Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+
+    IEnumerable<SelectListItem> branchSelectOptions = new List<SelectListItem>{
+
+    new SelectListItem
+    {
+        Text = "",
+        Value = ""
+    }
+    };
 }
 
-@if (@ViewBag.CanViewPermission)
+@if (!string.IsNullOrWhiteSpace(Convert.ToString(TempData["ErrorTitle"])))
 {
-    <div>
-        <div class="d-flex align-items-center">
-            <h3 class="p-2">Create Proposal Pack</h3>
-        </div>
-        <hr />
-    </div>
+    <partial name="_ErrorView" />
+}
+else
+{
+    if (Convert.ToBoolean(ViewBag.CanViewPermission))
+    {
 
-    <div class="row">
-        <div id="disabled-section" class="disable-div col-4 shadow-lg pb-3">
-            <form>
-                <div class="mb-3">
-                    <label for="txt-title" class="form-label">Title</label>
-                    <input type="text" class="form-control" id="txt-title" aria-describedby="title">
-                </div>
-                <div class="mb-3">
-                    <label for="cbo-proposal-type" class="form-label">Proposal Type</label>
-                    <select class="form-select" id="cbo-proposal-type" arial-label="business type">
-                        <option selected value="001">Traditional Business</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="cbo-branch" class="form-label">Branch Location</label>
-                    <select class="form-select" id="cbo-branch" aria-label="select branch">
-                        @if (ViewBag.Branches.Count > 0 && ViewBag.Branches == null)
-                        {
-                            foreach (var item in ViewBag.Branches)
-                            {
-                                <option value="@item.LocalSystemCode">@item.BranchName</option>
+        if (Model.Branches.Count > 0 && Model.Branches != null)
+        {
+            branchSelectOptions = Model.Branches.Select(i => new SelectListItem
+            {
+                Text = i.BranchName,
+                Value = i.LocalSystemCode
+            });
+        }
+
+        <div>
+            <div class="d-flex align-items-center">
+                <h3 class="p-2">Create Proposal Pack</h3>
+            </div>
+            <hr />
+        </div>
+
+        var disabledClassVar = "disable-div";
+
+        if (Convert.ToBoolean(ViewBag.CanEditPermission))
+        {
+            disabledClassVar = "";
+        }
+
+        <div class="row">
+
+            <div id="disabled-section" class="@disabledClassVar col-4 shadow-lg pb-3">
+
+                <form method="post" enctype="multipart/form-data">
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title</label>
+                        <input class="form-control" asp-for="Title">
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ProposalType" class="form-label">Proposal Type</label>
+                        <select class="form-select" asp-for="ProposalType" arial-label="business type">
+                            <option selected value="001">Traditional Business</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BranchCode" class="form-label">Branch Location</label>
+
+                        <select class="form-select" asp-for="BranchCode" asp-items="@branchSelectOptions" aria-label="select branch">
+                            @*<option disabled selected>--Select Branch--</option>*@
+                        </select>
+                    </div>
+                    <div class="mb-3">
+
+                        <label asp-for="AgentCode" class="form-label">Agent Code</label>
+
+                        <div class="input-group">
+
+                            <input asp-for="AgentCode" onkeyup="" data-agent-code="" type="text" class="form-control form-control-sm" aria-label="Agent Code" aria-describedby="btn-agent-luv" readonly>
+
+                            <button class="btn btn-outline-secondary btn-sm" type="button" id="btn-agent-luv">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <hr />
+                    <button onclick="return validateInput()" type="submit" asp-action="SubmitProposalPack" class="btn btn-danger">Create Proposal Pack</button>
+                </form>
+
+            </div>
+        </div>
+
+
+
+        @section Scripts{
+
+            <script src="~/js/newProposalPackScript.bundle.js" asp-append-version="true"></script>
+
+
+            <script>function displaySpinner() {
+                    const spinnerDiv = document.getElementById('loading-gif');
+
+                    if (spinnerDiv) {
+                        spinnerDiv.classList.remove('rds-hidden');
+                    }
+                }
+
+                function hideSpinner() {
+                    const spinnerDiv = document.getElementById('loading-gif');
+
+                    if (spinnerDiv) {
+                        spinnerDiv.classList.add('rds-hidden');
+                    }
+                }
+
+                function registerRouteAction() {
+
+                    document.title = 'CPC - New Proposal Pack';
+
+                    addScriptEventListeners();
+                }
+
+                document.addEventListener("DOMContentLoaded", registerRouteAction);
+
+                function addScriptEventListeners() {
+                    newProposalPackScript.addScriptEventListeners();
+                }
+
+                const emptyStringValue = '';
+
+                function validateInput() {
+
+                    try {
+
+                        displaySpinner();
+
+                        const _titleInput = document.getElementById('Title');
+                        const _branchInput = document.getElementById('Branches');
+                        const _agentInput = document.getElementById('AgentCode');
+                        const _saveBtn = document.getElementById('btn-save');
+                        const _agentLookupBtn = document.getElementById('btn-agent-luv');
+
+
+                        if (_titleInput) {
+                            _proposalTitle = _titleInput.value.trim();
+
+                            if (stringIsEmptyorNullOrUndefined(_proposalTitle)) {
+
+                                swal('Validation Error', 'Please enter a valid value in the Title field', 'error');
+                                _titleInput.focus();
+
+                                return false;
                             }
                         }
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="txt-agent-code" class="form-label">Agent Code</label>
-                    <div class="input-group">
-                        <input id="txt-agent-code" data-agent-code="" type="text" class="form-control form-control-sm" aria-label="Agent Code" aria-describedby="btn-agent-luv" disabled readonly>
-                        <button class="btn btn-outline-secondary btn-sm" type="button" id="btn-agent-luv">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </form>
-            <hr />
-            <button id="btn-save" type="button" class="btn btn-danger">Create Proposal Pack</button>
-        </div>
-    </div>
+
+                        if (_branchInput) {
+                            _selectedBranch = getSelectedDropdownValue(_branchInput);
+
+                            if (stringIsEmptyorNullOrUndefined(_selectedBranch)) {
+                                swal('Validation Error', 'Please select a branch from the available List', 'error');
+                                return false;
+                            }
+                        }
+
+                        if (_agentInput) {
+
+                            if (_agentInput.hasAttribute('data-agent-code')) {
+
+                                _proposalAgentCode = _agentInput.getAttribute('data-agent-code');
+
+                                if (stringIsEmptyorNullOrUndefined(_proposalAgentCode) || stringIsEmptyorNullOrUndefined(_agentInput.value)) {
+                                    swal('Validation Error', 'Please enter a valid value in the Agent Code field', 'error');
+                                    _agentInput.focus();
+                                    return false;
+                                }
+                            }
+                        }
+
+                        return true;
+                    }
+                    catch (e) { }
+                    finally {
+                        hideSpinner();
+                    }
+                }
+                
+
+                function stringIsEmptyorNullOrUndefined(val) {
+
+                    if (val == null || val == undefined) {
+                        return true;
+                    }
+
+                    if (val.trim().length == 0) {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                function getSelectedDropdownValue(cbo) {
+
+                    if (!cbo) return emptyStringValue;
+                    if (cbo.options.length == 0) return emptyStringValue;
+
+                    const selvalue = cbo.options[cbo.selectedIndex].value;
+
+                    if (!stringIsEmptyorNullOrUndefined(selvalue)) {
+                        return selvalue;
+                    }
+
+                    return emptyStringValue;
+                }</script>
+
+        }
+    }
+}
 
 
-    @section Scripts{
-
-        <script>$(document).ready(function () {
-
-            const disabledSectionDiv = document.getElementById('disabled-section');
-
-                if (@ViewBag.CanEditPermission) {
-
-                    disabledSectionDiv.classList.remove('disable-div');
+@*window.onload = function () {
 
                     let navigationUrl = `/cpc/data-capture/new-proposal`;
 
                     window.location.hash = "#" + navigationUrl;
                 }
-});</script>
-    }
-}
-@*swal('Connectivity Error', 'Error Connecting to the backend server', 'error')*@
+
+
+
+
+    <script>$(document).ready(function () {
+
+            let navigationUrl = `/cpc/data-capture/new-proposal`;
+
+            window.location.hash = "#" + navigationUrl;
+
+        });</script>*@
+
+@*const view = new match.route.view(hashArray.length > 0 ? hashArray[1] : undefined);
+    view.loadView();*@

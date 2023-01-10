@@ -3,15 +3,88 @@
     Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
 }
 
+@model IReadOnlyCollection<SAM.WEB.Domain.Dtos.CpcProposalPack>
 
-@section Scripts{
 
-    <script>$(document).ready(function () {
+@if (ViewBag.CanViewPermission)
+{
+    var disabledClassVar = "disable-div";
 
-    let navigationUrl = `/cpc/doc-review/wip-packs`;
+    if (ViewBag.CanEditPermission)
+    {
+        disabledClassVar = "";
+    }
 
-            window.location.hash = "#" + navigationUrl;
+    <div>
+        <div class="d-flex align-items-center">
+            <h3 class="p-2">WIP Proposal Packs</h3>
+        </div>
+        <hr />
+    </div>
+    <div id="disabled-section" class="@disabledClassVar shadow-lg">
+        <table class="table table-hover table-sm" id="tbl-of-wip-proposals">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ref Number</th>
+                    <th>Proposal Pack Title</th>
+                    <th>Initiating Branch</th>
+                    <th>Date Create</th>
+                    <th>Created By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbl-of-proposal-body">
+                @if (Model.Count > 0 && Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr class="data-item" data-proposal-ref="@item.ReferenceNumber">
+                            <td>
+                                <a href="#/cpc/data-capture/proposal-pack/property/view?id=@item.ReferenceNumber">@item.ReferenceNumber</a>
+                            </td>
+                            <td>@item.Title</td>
+                            <td>@item.InitiatingBranchName</td>
+                            <td>@item.CreateDate.ToString("dd MMM yyyy") </td>
+                            <td>@item.CreateUserEmail</td>
+                            <td>
+                                <a href="#" class="lnk-accept btn py-1 btn-outline-success">
+                                    <span><i class="bi bi-check-circle-fill"></i> Accept</span>
+                                </a>
+                                <a href="#" class="lnk-reject btn py-1 btn-outline-danger">
+                                    <span><i class="bi bi-x-circle-fill"></i> Reject</span>
+                                </a>
+                            </td>
+                        </tr>
 
-        });</script>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">There are currently no WIP proposal packs</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @section Scripts{
+
+        <script>$(document).ready(function () {
+
+                let navigationUrl = `/cpc/doc-review/wip-packs`;
+
+                window.location.hash = "#" + navigationUrl;
+
+            });</script>
+    }
 }
+
+
+
+
+
+
+
+
 

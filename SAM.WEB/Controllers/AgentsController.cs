@@ -1,10 +1,10 @@
-﻿using SAM.NUGET.Services;
+﻿using SAM.WEB.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Reflection;
 using System.Linq;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
@@ -36,17 +36,35 @@ namespace SAM.API.Controllers
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:AgentsUrl");
+                //var url = _configuration.GetValue<string>("AppSettings:AgentsUrl");
 
-                var query = new Dictionary<string, string>()
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["searchTerm"] = searchTerm,
+                //    ["Ref"] = Ref,
+                //};
+
+                //var uri = QueryHelpers.AddQueryString(url, query);
+
+                //var model = await DataServices<List<SalesTeamMemberDto>>.GetPayload(uri, _httpClientFactory);
+
+                var model = new List<SalesTeamMemberDto>()
                 {
-                    ["searchTerm"] = searchTerm,
-                    ["Ref"] = Ref,
+                    new SalesTeamMemberDto
+                    {
+                        AgentSystemCode = "test1",
+                        BusinessCode = "test",
+                         FullName = "AgentTest1",
+                         SalesLevel = "test",
+                    },
+                    new SalesTeamMemberDto
+                    {
+                        AgentSystemCode = "test2",
+                        BusinessCode = "test",
+                         FullName = "AgentTest2",
+                         SalesLevel = "test",
+                    },
                 };
-
-                var uri = QueryHelpers.AddQueryString(url, query);
-
-                var model = await DataServices<List<SalesTeamMemberDto>>.GetPayload(uri, _httpClientFactory);
 
                 var modelArray = new List<SalesTeamMemberArrayDto>();
 

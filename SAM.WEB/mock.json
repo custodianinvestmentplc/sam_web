@@ -1,0 +1,226 @@
+{
+  "ProposalPack": [
+    {
+      "TableRowId": 0,
+      "ReferenceNumber": "CLA/1/10/2023 10:31:43 AM/6813",
+      "Title": "Test Pack 1",
+      "InitiatingBranchCode": "1",
+      "InitatingAgentCode": "AgentTest2",
+      "CreateDate": "2023-01-10T10:31:43.587198\u002B01:00",
+      "CreateUserEmail": "ogbian@outlook.com",
+      "InitiatingBranchName": "1",
+      "InitiatingAgentName": "AgentTest2",
+      "CreateUserName": "ogbian@outlook.com",
+      "PpcStatus": "SUBMITTED",
+      "ProposalPackType": "001"
+    }
+  ],
+  "ProposalPackContent": [
+    {
+      "ProposalPackContentRowId": 0,
+      "ProposalPackRefNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "ContentTypeShortDesc": "Traditional",
+      "ContentTypeDescription": "Traditional",
+      "CreateDate": "2023-01-10T10:31:43.6161843\u002B01:00",
+      "CreateUser": "ogbian@outlook.com",
+      "ContentStatus": "SUBMITTED"
+    }
+  ],
+  "ProposalPackFiles": [],
+  "ProposalFormTradGeneralOption": [
+    {
+      "Title": "Mr",
+      "UserEmail": "ogbian@outlook.com",
+      "OtherTitle": "",
+      "Surname": "tyrewer",
+      "Firstname": "rtgtre",
+      "Middlename": "rtrert",
+      "Dob": "2023-01-30",
+      "Gender": "M",
+      "GenderOthers": "",
+      "StateOfOrigin": "1",
+      "Nationality": "Nigerian",
+      "NationalityOthers": "",
+      "TownOrCityOfBirth": "rgytr",
+      "CountryOfBirth": "rthtr",
+      "Address": "rtr",
+      "TownOfAddress": "rtr",
+      "CityOfAddress": "rtr",
+      "StateOfAddress": "rtrtrtyt",
+      "CountryOfAddress": "rtyhytrt",
+      "ProductCode": "1",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001"
+    }
+  ],
+  "ProposalFormTradTaxDetails": [
+    {
+      "Tin": "ytrety",
+      "UserEmail": "ogbian@outlook.com",
+      "Employer": "rtytrer",
+      "EmployerAddress": "tyhgfd",
+      "EmployerEmail": "ftghgfrdefg@fgh.com",
+      "EmployerTelephone": "fghjgfd",
+      "Religion": "ghjgf",
+      "CustomerOccupation": "fgffg",
+      "CustomerSourceOfFunds": "dfghgfd",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001"
+    }
+  ],
+  "ProposalFormTradIdentification": [
+    {
+      "MeansOfIdentification": "DriversLicense",
+      "MeansOfidentificationOthers": "",
+      "IdentifiationNbr": "hgrertgy",
+      "IdCountryOfIssue": "",
+      "IdCountryOfIssueOthers": "",
+      "IdIssuingAuthrity": "trertg",
+      "IdIssueDate": "2023-01-12",
+      "IdExpiryDate": "2023-01-10",
+      "ResidentPermitNbr": "",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "UserEmail": "ogbian@outlook.com"
+    }
+  ],
+  "ProposedFormTradBankInfo": [
+    {
+      "BankName": "hre",
+      "AccountNumber": "ghgfdfgh",
+      "AccountName": "hjnmngf",
+      "Bvn": "hjhgfgh",
+      "BankProductName": "fghjgf",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "UserEmail": "ogbian@outlook.com"
+    }
+  ],
+  "ProposalFormTradMortgageInfo": [
+    {
+      "IsApplicable": false,
+      "MortgageName": "",
+      "MortgageAddress": "",
+      "InterestRate": "",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "UserEmail": "ogbian@outlook.com"
+    }
+  ],
+  "ProposedFormTradChildrenEducation": [
+    {
+      "IsApplicable": true,
+      "SchoolFeesAmount": 0,
+      "BenefitPercent": 0,
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "UserEmail": "ogbian@outlook.com"
+    }
+  ],
+  "NewDigitalPlanNomineeForm": [
+    {
+      "IsApplicable": false,
+      "NomineeName": "",
+      "NomineeDob": "",
+      "NomineeRelationship": "",
+      "SumAssured": 0,
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "UserEmail": "ogbian@outlook.com"
+    }
+  ],
+  "AddBeneficiaryOption": [
+    {
+      "Caller": "ogbian@outlook.com",
+      "ReferenceNumber": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "BeneficiaryName": "yujtrer",
+      "Dob": "2023-01-18",
+      "Relationship": "Wife",
+      "ProportionPercent": 1
+    }
+  ],
+  "SaveDraftBeneficiaryForm": [
+    {
+      "UserEmail": "ogbian@outlook.com",
+      "ReferenceNumber": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001"
+    }
+  ],
+  "NewDataCaptureSumAssured": [
+    {
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "UserEmail": "ogbian@outlook.com",
+      "ContentTypeCode": "001",
+      "SumAssured": 1,
+      "TermYear": 1,
+      "FirstPremiumPaid": 1,
+      "RegularPremium": 1,
+      "PaymentFrequency": "MONTHLY",
+      "FromDate": "2023-01-12",
+      "MaturityDate": "2023-01-11",
+      "PaymentMode": "CHEQUE"
+    }
+  ],
+  "AddOtherInsurerOption": [
+    {
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "UserEmail": "ogbian@outlook.com",
+      "ContentTypeCode": "001",
+      "HasOtherInsurer": "NO",
+      "OtherInsurerName": "",
+      "OtherSumAssured": 0,
+      "PriorProposalDecline": "NO",
+      "DeclineReason": ""
+    }
+  ],
+  "AddMedicalHistoryOption": [
+    {
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "HospitalName": "rtrewert",
+      "HospitalAddress": "1111",
+      "HeightInMeters": 1,
+      "WeightInKg": 1,
+      "CallerEmail": "ogbian@outlook.com"
+    }
+  ],
+  "AddMiscellaneousOption": [
+    {
+      "UserEmail": "ogbian@outlook.com",
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "ContentTypeCode": "001",
+      "SickOrOnMedication": "NO",
+      "MedicationDetails": "",
+      "IsPregnant": "NO",
+      "ExpectedDeliveryMonth": "",
+      "Smoked": "NO",
+      "Tuberculosis": "NO",
+      "Epilepsy": "NO",
+      "HeartDisease": "NO",
+      "Insanity": "NO",
+      "Diabetes": "NO",
+      "Hypertension": "NO",
+      "OtherIllness": "NO",
+      "OtherIllnessDetails": ""
+    }
+  ],
+  "AddOtherMedicalInfo": [
+    {
+      "ReferenceNbr": "CLA/1/10/2023 10:31:43 AM/6813",
+      "UserEmail": "ogbian@outlook.com",
+      "ContentTypeCode": "001",
+      "SkinDisorder": "NO",
+      "NightSweats": "NO",
+      "WeightLoss": "NO",
+      "SwollenGlands": "NO",
+      "RecurrentDiarrhea": "NO",
+      "HepatitisB": "NO",
+      "HivAids": "NO",
+      "BloodTransfusion": "NO",
+      "PastTimeActivities": "ertyhdf",
+      "ResideOutsideNigeria": "NO"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-﻿using SAM.NUGET.Domain.Dtos;
-using SAM.NUGET.Models;
+﻿using SAM.WEB.Domain.Dtos;
+using SAM.WEB.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ using static System.Net.WebRequestMethods;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.NUGET.ViewModels;
+using SAM.WEB.ViewModels;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
@@ -79,23 +79,34 @@ namespace SAM.WEB.Services
             }
         }
 
+        public static void SaveFileToDirectory(byte[] file, string filename)
+        {
+            System.IO.File.WriteAllBytes(filename, file);
+        }
+
         public static async Task<List<string>> Authorization(string form, string userEmail, IConfiguration _configuration, IHttpClientFactory _httpClientFactory)
         {
             var indexVM = new IndexViewModel();
 
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:PermissionsUrl");
+                //var url = _configuration.GetValue<string>("AppSettings:PermissionsUrl");
 
-                var query = new Dictionary<string, string>()
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["form"] = form,
+                //    ["useremail"] = userEmail,
+                //};
+
+                //var uri = QueryHelpers.AddQueryString(url, query);
+
+                //return await DataServices<List<string>>.GetPayload(uri, _httpClientFactory);
+
+                return new List<string>
                 {
-                    ["form"] = form,
-                    ["useremail"] = userEmail,
+                    "can_view",
+                    "can_edit"
                 };
-
-                var uri = QueryHelpers.AddQueryString(url, query);
-
-                return await DataServices<List<string>>.GetPayload(uri, _httpClientFactory);
             }
             catch { throw; }
         }

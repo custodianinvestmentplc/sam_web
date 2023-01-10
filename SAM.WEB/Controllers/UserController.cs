@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
-using SAM.NUGET.ViewModels;
-using SAM.NUGET.Models;
-using SAM.NUGET.Services;
+using SAM.WEB.ViewModels;
+using SAM.WEB.Models;
+using SAM.WEB.Services;
 using Microsoft.AspNetCore.Authorization;
 using log4net;
 using Microsoft.Extensions.Configuration;
@@ -37,7 +37,7 @@ namespace SAM.API.Controllers
         [HttpGet]
         public IActionResult GetUser()
         {
-            var indexVM = new IndexViewModel();
+            //var indexVM = new IndexViewModel();
 
             try
             {

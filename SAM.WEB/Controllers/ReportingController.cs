@@ -1,4 +1,4 @@
-﻿using SAM.NUGET.Services;
+﻿using SAM.WEB.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using SAM.WEB.Services;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.NUGET.Resources;
+using SAM.WEB.Resources;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

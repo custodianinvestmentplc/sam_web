@@ -1,22 +1,22 @@
-﻿using SAM.NUGET.Services;
+﻿using SAM.WEB.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using System;
-using SAM.NUGET.Payloads.Cts;
+using SAM.WEB.Payloads.Cts;
 using System.Linq;
 using System.Web;
-using SAM.NUGET.Domain.RequestModels;
+using SAM.WEB.Domain.RequestModels;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using SAM.WEB.Services;
 using System.Collections.Generic;
-using SAM.NUGET.Domain.Dtos.Cts;
+using SAM.WEB.Domain.Dtos.Cts;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Collections;
-using SAM.NUGET.Domain.Options;
+using SAM.WEB.Domain.Options;
 
 namespace SAM.API.Controllers
 {

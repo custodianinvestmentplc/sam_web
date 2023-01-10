@@ -1,5 +1,5 @@
-﻿using SAM.NUGET.Domain.Dtos;
-using SAM.NUGET.Services;
+﻿using SAM.WEB.Domain.Dtos;
+using SAM.WEB.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

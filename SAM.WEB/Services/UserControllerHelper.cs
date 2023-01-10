@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Reflection;
-using SAM.NUGET.Models;
-using SAM.NUGET.Services;
-using SAM.NUGET.ViewModels;
+using SAM.WEB.Models;
+using SAM.WEB.Services;
+using SAM.WEB.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using log4net;
 
 namespace SAM.WEB.Services

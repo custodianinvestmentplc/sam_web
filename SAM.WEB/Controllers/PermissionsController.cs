@@ -1,9 +1,9 @@
 ﻿
-using SAM.NUGET.Domain.Dtos;
-using SAM.NUGET.Domain.Options;
-using SAM.NUGET.Models;
-using SAM.NUGET.Services;
-using SAM.NUGET.ViewModels;
+using SAM.WEB.Domain.Dtos;
+using SAM.WEB.Domain.Options;
+using SAM.WEB.Models;
+using SAM.WEB.Services;
+using SAM.WEB.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

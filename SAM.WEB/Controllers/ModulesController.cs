@@ -4,14 +4,14 @@ using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SAM.NUGET.Services;
-using SAM.NUGET.ViewModels;
-using SAM.NUGET.Models;
+using SAM.WEB.Services;
+using SAM.WEB.ViewModels;
+using SAM.WEB.Models;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using System.Collections.Generic;
 using SAM.WEB.Services;
 
@@ -58,7 +58,7 @@ namespace SAM.WEB.Controllers
 
         public async Task<IActionResult> GetUserView(string route)
         {
-            var indexVM = new IndexViewModel();
+            //var indexVM = new IndexViewModel();
 
             ViewBag.ShowLayout = true;
 
@@ -66,18 +66,32 @@ namespace SAM.WEB.Controllers
             {
                 var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
+                //var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
 
                 if (!string.IsNullOrEmpty(useremail))
                 {
-                    var query = new Dictionary<string, string>()
+                    //var query = new Dictionary<string, string>()
+                    //{
+                    //    ["useremail"] = useremail
+                    //};
+
+                    //var uri = QueryHelpers.AddQueryString(url, query);
+
+                    //var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
+
+                    var user = new UserRegisterDto
                     {
-                        ["useremail"] = useremail
+                        UserDisplayName = "Emmanuel",
+                        UserRole = "Agent",
+                        BranchName = "BranchName1",
+                        AddedByEmail = useremail,
+                        BranchCode = "1",
+                        CreateDate = new DateTime(2022, 01, 06),
+                        JobDescription = "Agent",
+                        UserEmail = useremail,
+                        TableRowId = 1,
+                        UserRoleId = "1"
                     };
-
-                    var uri = QueryHelpers.AddQueryString(url, query);
-
-                    var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
 
                     ViewBag.Module = user.UserRole.ToLower();
 
@@ -88,20 +102,20 @@ namespace SAM.WEB.Controllers
                     return View(Url.Content($"/Views/Modules/{route}.cshtml"));
                 }
 
-                indexVM.ErrorTitle = "Unable to retreive user email";
-                indexVM.ExceptionType = "Access Denied";
+                TempData["ErrorTitle"] = "Unable to retreive user email";
+                TempData["ExceptionType"] = "Access Denied";
 
-                return RedirectToAction("Index", "Home", indexVM);
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                indexVM.ErrorTitle = "You do not belong to any of the designated permission groups";
-                indexVM.ExceptionType = "Access Denied";
-                indexVM.ErrorDescription = ex.Message;
+                TempData["ErrorTitle"] = "You do not belong to any of the designated permission groups";
+                TempData["ExceptionType"] = "Access Denied";
+                TempData["ErrorDescription"] = ex.Message;
 
                 log.Error(DateTime.Now.ToString(), ex);
 
-                return RedirectToAction("Index", "Home", indexVM);
+                return RedirectToAction("Index", "Home");
             }
         }
 

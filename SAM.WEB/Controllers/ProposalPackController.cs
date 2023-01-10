@@ -1,10 +1,10 @@
 using SAM.API;
-using SAM.NUGET.Domain.Dtos;
-using SAM.NUGET.Domain.Options;
-using SAM.NUGET.Models;
-using SAM.NUGET.Payloads;
-using SAM.NUGET.Services;
-using SAM.NUGET.ViewModels;
+using SAM.WEB.Domain.Dtos;
+using SAM.WEB.Domain.Options;
+using SAM.WEB.Models;
+using SAM.WEB.Payloads;
+using SAM.WEB.Services;
+using SAM.WEB.ViewModels;
 using log4net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,11 +23,13 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 using SAM.NUGET;
-using SAM.WEB.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
+using SAM.WEB;
+using SAM.WEB.Repo;
+using AutoMapper;
 
 namespace SAM.API.Controllers
 {
@@ -36,14 +38,16 @@ namespace SAM.API.Controllers
     public class ProposalPackController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly ICPCHubServices _cpcServices;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public ProposalPackController(IConfiguration configuration, IHttpClientFactory httpClientFactory, ICPCHubServices cpcHubServices, IWebHostEnvironment webHostEnvironment)
+        public ProposalPackController(IMapper mapper, IConfiguration configuration, IHttpClientFactory httpClientFactory, ICPCHubServices cpcHubServices, IWebHostEnvironment webHostEnvironment)
         {
             _httpClientFactory = httpClientFactory;
+            _mapper = mapper;
             _configuration = configuration;
             _cpcServices = cpcHubServices;
             _webHostEnvironment = webHostEnvironment;
@@ -139,7 +143,6 @@ namespace SAM.API.Controllers
 
             }
         }
-
 
         [HttpPost]
         [Route("adduser")]
@@ -288,11 +291,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:UpdateUser");
 
-                await DataServices<string>.PostPayload<UserProfileOptions>(payloadRef, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<UserProfileOptions>(payloadRef, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -324,11 +327,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:EditRoleSettings");
 
-                await DataServices<string>.PostPayload<AddNewRoleOptions>(payloadRef, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<AddNewRoleOptions>(payloadRef, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -368,11 +371,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:EditTemplateSettings");
 
-                await DataServices<string>.PostPayload<AddNewTemplateOptions>(payloadRef, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<AddNewTemplateOptions>(payloadRef, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -832,16 +835,18 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("contents/delete")]
-        public async Task<IActionResult> DeleteProposalPackContent([FromBody] DeleteProposalPackContentRequest payload)
+        public IActionResult DeleteProposalPackContent([FromBody] DeleteProposalPackContentRequest payload)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:DeleteProposalPackContent");
+                //var url = _configuration.GetValue<string>("AppSettings:DeleteProposalPackContent");
+                //var result = await DataServices<string>.PostPayload<DeleteProposalPackContentRequest>(payload, url, _httpClientFactory);
+                //var result = await DataServices<string>.PostPayload<DeleteProposalPackContentRequest>(payload, url, _httpClientFactory);
 
-                var result = await DataServices<string>.PostPayload<DeleteProposalPackContentRequest>(payload, url, _httpClientFactory);
+                var isSuccessful = RoutesController<ProposalPackContentDto>.DeleteDbSet("ProposalPackReferenceNbr", payload.ProposalPackReferenceNbr, WebConstants.ProposalPackContent);
 
-
-                if (result == "Success")
+                //if (result == "Success")
+                if (isSuccessful)
                 {
                     return StatusCode(200, new
                     {
@@ -870,16 +875,26 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("files/delete")]
-        public async Task<IActionResult> DeleteProposalPackFile([FromBody] DeleteProposalPackFileRequest payload)
+        public IActionResult DeleteProposalPackFile([FromBody] DeleteProposalPackFileRequest payload)
         {
+
+            string webRootPath = _webHostEnvironment.WebRootPath;
+
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:DeleteProposalPackFile");
+                //var url = _configuration.GetValue<string>("AppSettings:DeleteProposalPackFile");
+                //var result = await DataServices<string>.PostPayload<DeleteProposalPackFileRequest>(payload, url, _httpClientFactory);
 
-                var result = await DataServices<string>.PostPayload<DeleteProposalPackFileRequest>(payload, url, _httpClientFactory);
+                var isSuccessful = RoutesController<SupportingDocFile>.DeleteDbDocSet("ProposalPackReferenceNbr", payload.ProposalPackReferenceNbr, payload.proposalPackDocType, WebConstants.ProposalPackFiles);
 
-                if (result == "Success")
-                { 
+                if (isSuccessful)
+                {
+                    var uploads = webRootPath + WebConstants.ImagePath;
+
+                    var fileName = uploads + payload.proposalPackDocName;
+
+                    ControllerHelper.DeleteFile(fileName);
+
                     return StatusCode(200, new
                     {
                         RequestedAction = "Delete Proposal Content Record",
@@ -889,7 +904,7 @@ namespace SAM.API.Controllers
 
                 return StatusCode(404, new
                 {
-                    RequestedAction = "Delete Proposal Content Record",
+                    RequestedAction = "Delete Proposal File Record",
                     OperationResult = "Error"
                 });
             }
@@ -900,7 +915,7 @@ namespace SAM.API.Controllers
                 return StatusCode(500, new
                 {
                     ErrorDescription = ex.Message,
-                    ExceptionType = "DeleteProposalPackContentError"
+                    ExceptionType = "DeleteProposalPackFileError"
                 });
             }
         }
@@ -1020,7 +1035,6 @@ namespace SAM.API.Controllers
             }
         }
 
-
         [HttpPost]
         [Route("contents")]
         public async Task<IActionResult> AddProposalPackContentRecord([FromBody] NewProposalPackContent payload)
@@ -1094,7 +1108,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/general-info")]
-        public async Task<IActionResult> SaveTraditionalBusinessGeneral([FromBody] ProposalFormTradGeneral payload)
+        public IActionResult SaveTraditionalBusinessGeneral([FromBody] ProposalFormTradGeneral payload)
         {
             try
             {
@@ -1111,28 +1125,32 @@ namespace SAM.API.Controllers
                     CountryOfBirth = payload.CountryOfBirth,
                     Dob = payload.Dob,
                     Firstname = payload.Firstname,
-                    Gender = payload.Gender,
-                    GenderOthers = payload.GenderOthers,
+                    Gender = payload.Gender ?? "",
+                    GenderOthers = payload.GenderOthers ?? "",
                     Middlename = payload.Middlename,
-                    Nationality = payload.Nationality,
-                    NationalityOthers = payload.NationalityOthers,
-                    OtherTitle = payload.OtherTitle,
+                    Nationality = payload.Nationality ?? "",
+                    NationalityOthers = payload.NationalityOthers ?? "",
+                    OtherTitle = payload.OtherTitle ?? "",
                     ProductCode = payload.ProductCode,
                     ReferenceNbr = payload.ReferenceNbr,
                     StateOfOrigin = payload.StateOfOrigin,
                     Surname = payload.Surname,
-                    Title = payload.Title,
+                    Title = payload.Title ?? "",
                     TownOrCityOfBirth = payload.TownOrCityOfBirth,
-                    UserEmail = userEmail
+                    UserEmail = userEmail,
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessGeneral");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessGeneral");
 
-                await DataServices<string>.PostPayload<ProposalFormTradGeneralOption>(option, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<ProposalFormTradGeneralOption>(option, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposalFormTradGeneralOption>.UpdateDbSet(option, WebConstants.ProposalFormTradGeneralOption, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1149,21 +1167,39 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/general-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep1([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep1([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep1");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep1");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step1DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                var matched = Repository<ProposalFormTradGeneralOption>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposalFormTradGeneralOption);
+
+                var model = _mapper.Map<Step1DataCaptureFormTraditionalDto>(matched);
+
+                //var model = new Step1DataCaptureFormTraditionalDto
+                //{
+                //    Address = matched.Address,
+                //    CountryOfAddress = matched.CountryOfAddress,
+                //    ContentTypeCode = matched.ContentTypeCode,
+                //    ReferenceNbr = matched.ReferenceNbr,
+                //    CityOfAddress = matched.CityOfAddress,
+                //    CountryOfBirth = matched.CountryOfBirth,
+                //    Dob = matched.Dob,
+                //    Firstname = matched.Firstname,
+                //    Gender = matched.Gender,
+                //    GenderOthers 
+                //};
+
+                //var model = await DataServices<Step1DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
 
                 return StatusCode(200, new
                 {
@@ -1185,21 +1221,25 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/tax-info")]
-        public async Task<IActionResult> SaveTraditionalBusinessTaxDetails([FromBody] ProposalFormTradTaxDetails payload)
+        public IActionResult SaveTraditionalBusinessTaxDetails([FromBody] ProposalFormTradTaxDetails payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessTaxDetails");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessTaxDetails");
 
                 payload.UserEmail = userEmail;
 
-                await DataServices<string>.PostPayload<ProposalFormTradTaxDetails>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<ProposalFormTradTaxDetails>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposalFormTradTaxDetails>.UpdateDbSet(payload, WebConstants.ProposalFormTradTaxDetails, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1216,21 +1256,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/tax-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep2([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep2([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep2");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep2");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step2DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step2DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<ProposalFormTradTaxDetails>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposalFormTradTaxDetails);
+
+                var model = _mapper.Map<Step2DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1252,21 +1296,30 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/identity-info")]
-        public async Task<IActionResult> SaveTraditionalBusinessIdentificationDetails([FromBody] ProposalFormTradIdentification payload)
+        public IActionResult SaveTraditionalBusinessIdentificationDetails([FromBody] ProposalFormTradIdentification payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessIdentificationDetails");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessIdentificationDetails");
 
                 payload.UserEmail = userEmail;
 
-                await DataServices<string>.PostPayload<ProposalFormTradIdentification>(payload, url, _httpClientFactory);
+                payload.MeansOfIdentification = payload.MeansOfIdentification ?? "";
+                payload.MeansOfidentificationOthers = payload.MeansOfidentificationOthers ?? "";
+                payload.IdCountryOfIssue = payload.IdCountryOfIssue ?? "";
+                payload.IdCountryOfIssueOthers = payload.IdCountryOfIssueOthers ?? "";
+                payload.ResidentPermitNbr = payload.ResidentPermitNbr ?? "";
+                //var res = await DataServices<string>.PostPayload<ProposalFormTradIdentification>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposalFormTradIdentification>.UpdateDbSet(payload, WebConstants.ProposalFormTradIdentification, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1283,21 +1336,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/identity-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep3([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep3([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep3");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep3");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step3DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step3DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<ProposalFormTradIdentification>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposalFormTradIdentification);
+
+                var model = _mapper.Map<Step3DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1319,21 +1376,25 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/bank-info")]
-        public async Task<IActionResult> SaveTraditionalBusinessBankInfo([FromBody] ProposedFormTradBankInfo payload)
+        public IActionResult SaveTraditionalBusinessBankInfo([FromBody] ProposedFormTradBankInfo payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessBankInfo");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessBankInfo");
 
                 payload.UserEmail = userEmail;
 
-                await DataServices<string>.PostPayload<ProposedFormTradBankInfo>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<ProposedFormTradBankInfo>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposedFormTradBankInfo>.UpdateDbSet(payload, WebConstants.ProposedFormTradBankInfo, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1350,21 +1411,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/bank-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep4([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep4([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep4");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep4");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step4DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step4DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<ProposedFormTradBankInfo>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposedFormTradBankInfo);
+
+                var model = _mapper.Map<Step4DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1386,21 +1451,28 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/mortgage-info")]
-        public async Task<IActionResult> SaveTraditionalBusinessMortgageInfo([FromBody] ProposalFormTradMortgageInfo payload)
+        public IActionResult SaveTraditionalBusinessMortgageInfo([FromBody] ProposalFormTradMortgageInfo payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessMortgageInfo");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessMortgageInfo");
 
                 payload.UserEmail = userEmail;
+                payload.MortgageAddress = payload.MortgageAddress ?? "";
+                payload.MortgageName = payload.MortgageName ?? "";
+                payload.InterestRate = payload.InterestRate ?? "";
 
-                await DataServices<string>.PostPayload<ProposalFormTradMortgageInfo>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<ProposalFormTradMortgageInfo>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposalFormTradMortgageInfo>.UpdateDbSet(payload, WebConstants.ProposalFormTradMortgageInfo, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1417,21 +1489,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/mortgage-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep5([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep5([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep5");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep5");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step5DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step5DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<ProposalFormTradMortgageInfo>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposalFormTradMortgageInfo);
+
+                var model = _mapper.Map<Step5DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1453,21 +1529,25 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/children-education")]
-        public async Task<IActionResult> SaveTraditionalBusinessChildrenEducation([FromBody] ProposedFormTradChildrenEducation payload)
+        public IActionResult SaveTraditionalBusinessChildrenEducation([FromBody] ProposedFormTradChildrenEducation payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessChildrenEducation");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessChildrenEducation");
 
                 payload.UserEmail = userEmail;
 
-                await DataServices<string>.PostPayload<ProposedFormTradChildrenEducation>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<ProposedFormTradChildrenEducation>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<ProposedFormTradChildrenEducation>.UpdateDbSet(payload, WebConstants.ProposedFormTradChildrenEducation, "ReferenceNbr", payload.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1484,21 +1564,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/children-education")]
-        public async Task<IActionResult> FindTraditionalBusinessStep6([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep6([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep6");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep6");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step6DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step6DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<ProposedFormTradChildrenEducation>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.ProposedFormTradChildrenEducation);
+
+                var model = _mapper.Map<Step6DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1520,21 +1604,37 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/digital-plan")]
-        public async Task<IActionResult> SaveTraditionalBusinessDigitalPlan([FromBody] List<NewDigitalPlanNomineeForm> payload)
+        public IActionResult SaveTraditionalBusinessDigitalPlan([FromBody] List<NewDigitalPlanNomineeForm> payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessDigitalPlan");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveTraditionalBusinessDigitalPlan");
+                //var res = await DataServices<string>.PostPayload<List<NewDigitalPlanNomineeForm>>(payload, url, _httpClientFactory);
 
-                payload[0].UserEmail = userEmail;
+                var isSuccessful = false;
 
-                await DataServices<string>.PostPayload<List<NewDigitalPlanNomineeForm>>(payload, url, _httpClientFactory);
+                isSuccessful = RoutesController<NewDigitalPlanNomineeForm>.DeleteRangeDbSet("ReferenceNbr", payload[0].ReferenceNbr, WebConstants.NewDigitalPlanNomineeForm);
+
+                if (isSuccessful)
+                {
+                    foreach (var item in payload)
+                    {
+                        item.UserEmail = userEmail;
+                        item.NomineeName = item.NomineeName ?? "";
+                        item.NomineeDob = item.NomineeDob ?? "";
+                        item.NomineeRelationship = item.NomineeRelationship ?? "";
+
+                        isSuccessful = RoutesController<NewDigitalPlanNomineeForm>.PostDbSet(item, WebConstants.NewDigitalPlanNomineeForm);
+                    }
+                }
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(200, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1551,21 +1651,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/digital-plan")]
-        public async Task<IActionResult> FindTraditionalBusinessStep7([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep7([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep7");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep7");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<List<Step7DataCaptureFormTraditionalDto>>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<List<Step7DataCaptureFormTraditionalDto>>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<NewDigitalPlanNomineeForm>.GetAll(WebConstants.NewDigitalPlanNomineeForm, u => u.ReferenceNbr == RefNbr);
+
+                var model = _mapper.Map<List<Step7DataCaptureFormTraditionalDto>>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1587,7 +1691,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/beneficiaries")]
-        public async Task<IActionResult> AddBeneficiaryToProposalForm([FromBody] NewBeneficiaryForm payload)
+        public IActionResult AddBeneficiaryToProposalForm([FromBody] NewBeneficiaryForm payload)
         {
             try
             {
@@ -1604,14 +1708,19 @@ namespace SAM.API.Controllers
                     Relationship = payload.Relationship
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:AddBeneficiaryToProposalForm");
+                //var url = _configuration.GetValue<string>("AppSettings:AddBeneficiaryToProposalForm");
 
-                var newId = await DataServices<string>.PostPayload<AddBeneficiaryOption>(ops, url, _httpClientFactory);
+                //var newId = await DataServices<string>.PostPayload<AddBeneficiaryOption>(ops, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddBeneficiaryOption>.UpdateDbSet(ops, WebConstants.AddBeneficiaryOption, "ReferenceNumber", payload.ReferenceNumber);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success",
-                    NewBeneficiaryId = Convert.ToDecimal(newId)
+                    OperationOutcome = res,
+                    //NewBeneficiaryId = Convert.ToDecimal(newId)
+                    NewBeneficiaryId = Convert.ToDecimal(1)
                 });
             }
             catch (Exception ex)
@@ -1628,17 +1737,21 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/delete-beneficiary")]
-        public async Task<IActionResult> DeleteBeneficiaryFromProposalForm([FromBody] DeleteBeneficiaryForm payload)
+        public IActionResult DeleteBeneficiaryFromProposalForm([FromBody] DeleteBeneficiaryForm payload)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:DeleteBeneficiaryFromProposalForm");
+                //var url = _configuration.GetValue<string>("AppSettings:DeleteBeneficiaryFromProposalForm");
 
-                await DataServices<string>.PostPayload<DeleteBeneficiaryForm>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<DeleteBeneficiaryForm>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddBeneficiaryOption>.DeleteDbSet("ReferenceNumber", payload.ReferenceNumber, WebConstants.AddBeneficiaryOption);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1655,21 +1768,25 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/save-draft-beneficiary")]
-        public async Task<IActionResult> SaveDraftBeneficiary([FromBody] SaveDraftBeneficiaryForm payload)
+        public IActionResult SaveDraftBeneficiary([FromBody] SaveDraftBeneficiaryForm payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveDraftBeneficiary");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveDraftBeneficiary");
 
                 payload.UserEmail = userEmail;
 
-                await DataServices<string>.PostPayload<SaveDraftBeneficiaryForm>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<SaveDraftBeneficiaryForm>(payload, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<SaveDraftBeneficiaryForm>.UpdateDbSet(payload, WebConstants.SaveDraftBeneficiaryForm, "ReferenceNumber", payload.ReferenceNumber);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1686,21 +1803,42 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/beneficiaries")]
-        public async Task<IActionResult> FindTraditionalBusinessStep8([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep8([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep8");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep8");
 
-                var query = new Dictionary<string, string>()
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
+
+                //var uri = QueryHelpers.AddQueryString(url, query);
+
+                //var model = await DataServices<List<Step8DataCaptureFormTraditionalDto>>.GetPayload(uri, _httpClientFactory);
+
+                var model = new List<Step8DataCaptureFormTraditionalDto>();
+
+                var matched = Repository<AddBeneficiaryOption>.GetAll(WebConstants.AddBeneficiaryOption, u => u.ReferenceNumber == RefNbr);
+
+                //var model = _mapper.Map<List<Step8DataCaptureFormTraditionalDto>>(matched);
+
+                foreach (var item in matched)
                 {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                    var newModel = new Step8DataCaptureFormTraditionalDto
+                    {
+                        BeneficiaryDob = Convert.ToDateTime(item.Dob),
+                        BeneficiaryName = item.BeneficiaryName,
+                        BeneficiaryProportionPct = item.ProportionPercent,
+                        BeneficiaryRelationship = item.Relationship,
+                        ContentTypeCode = item.ContentTypeCode,
+                        ReferenceNbr = item.ReferenceNumber
+                    };
 
-                var uri = QueryHelpers.AddQueryString(url, query);
-
-                var model = await DataServices<List<Step8DataCaptureFormTraditionalDto>>.GetPayload(uri, _httpClientFactory);
+                    model.Add(newModel);
+                }
 
                 return StatusCode(200, new
                 {
@@ -1722,7 +1860,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/sum-assured")]
-        public async Task<IActionResult> SaveSumAssured([FromBody] NewSumAssured payload)
+        public IActionResult SaveSumAssured([FromBody] NewSumAssured payload)
         {
             try
             {
@@ -1743,13 +1881,17 @@ namespace SAM.API.Controllers
                     UserEmail = userEmail
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveSumAssured");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveSumAssured");
 
-                await DataServices<string>.PostPayload<NewDataCaptureSumAssured>(opt, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<NewDataCaptureSumAssured>(opt, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<NewDataCaptureSumAssured>.UpdateDbSet(opt, WebConstants.NewDataCaptureSumAssured, "ReferenceNbr", opt.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1766,23 +1908,27 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/sum-assured")]
-        public async Task<IActionResult> FindTraditionalBusinessStep9([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep9([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
                 log.Info($"{RefNbr} - {ContentTypeCode}");
 
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep9");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep9");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step9DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step9DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<NewDataCaptureSumAssured>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.NewDataCaptureSumAssured);
+
+                var model = _mapper.Map<Step9DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1804,7 +1950,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/other-insurer")]
-        public async Task<IActionResult> SaveOtherInsurerDetails([FromBody] NewOtherInsurerDetails payload)
+        public IActionResult SaveOtherInsurerDetails([FromBody] NewOtherInsurerDetails payload)
         {
             try
             {
@@ -1817,21 +1963,25 @@ namespace SAM.API.Controllers
                 {
                     OtherSumAssured = payload.OtherSumAssured,
                     ContentTypeCode = payload.ContentTypeCode,
-                    DeclineReason = payload.DeclineReason,
+                    DeclineReason = payload.DeclineReason ?? "",
                     HasOtherInsurer = payload.HasOtherInsurer,
-                    OtherInsurerName = payload.OtherInsurerName,
+                    OtherInsurerName = payload.OtherInsurerName ?? "",
                     PriorProposalDecline = payload.PriorProposalDecline,
                     ReferenceNbr = payload.ReferenceNbr,
                     UserEmail = userEmail
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveOtherInsurerDetails");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveOtherInsurerDetails");
 
-                await DataServices<string>.PostPayload<AddOtherInsurerOption>(opt, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<AddOtherInsurerOption>(opt, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddOtherInsurerOption>.UpdateDbSet(opt, WebConstants.AddOtherInsurerOption, "ReferenceNbr", opt.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1848,21 +1998,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/other-insurer")]
-        public async Task<IActionResult> FindTraditionalBusinessStep10([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep10([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep10");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep10");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step10DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step10DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<AddOtherInsurerOption>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.AddOtherInsurerOption);
+
+                var model = _mapper.Map<Step10DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1884,7 +2038,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/medical-history")]
-        public async Task<IActionResult> SaveMedicalHistory([FromBody] NewMedicalHistoryForm payload)
+        public IActionResult SaveMedicalHistory([FromBody] NewMedicalHistoryForm payload)
         {
             try
             {
@@ -1905,13 +2059,17 @@ namespace SAM.API.Controllers
                     WeightInKg = payload.WeightInKg
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveMedicalHistory");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveMedicalHistory");
 
-                await DataServices<string>.PostPayload<AddMedicalHistoryOption>(opt, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<AddMedicalHistoryOption>(opt, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddMedicalHistoryOption>.UpdateDbSet(opt, WebConstants.AddMedicalHistoryOption, "ReferenceNbr", opt.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -1928,21 +2086,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/medical-history")]
-        public async Task<IActionResult> FindTraditionalBusinessStep11([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep11([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep11");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep11");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step11DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step11DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<AddMedicalHistoryOption>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.AddMedicalHistoryOption);
+
+                var model = _mapper.Map<Step11DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -1964,7 +2126,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/misc-details")]
-        public async Task<IActionResult> SaveMiscellaneousDetails([FromBody] NewMiscellaneousForm payload)
+        public IActionResult SaveMiscellaneousDetails([FromBody] NewMiscellaneousForm payload)
         {
             try
             {
@@ -1976,27 +2138,31 @@ namespace SAM.API.Controllers
                     ContentTypeCode = payload.ContentTypeCode,
                     Diabetes = payload.Diabetes,
                     Epilepsy = payload.Epilepsy,
-                    ExpectedDeliveryMonth = payload.ExpectedDeliveryMonth,
+                    ExpectedDeliveryMonth = payload.ExpectedDeliveryMonth ?? "",
                     HeartDisease = payload.HeartDisease,
                     Hypertension = payload.Hypertension,
                     Insanity = payload.Insanity,
                     IsPregnant = payload.IsPregnant,
-                    MedicationDetails = payload.MedicationDetails,
+                    MedicationDetails = payload.MedicationDetails ?? "",
                     OtherIllness = payload.OtherIllness,
-                    OtherIllnessDetails = payload.OtherIllnessDetails,
+                    OtherIllnessDetails = payload.OtherIllnessDetails ?? "",
                     SickOrOnMedication = payload.SickOrOnMedication,
                     Smoked = payload.Smoked,
                     Tuberculosis = payload.Tuberculosis,
                     UserEmail = userEmail
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveMiscellaneousDetails");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveMiscellaneousDetails");
 
-                await DataServices<string>.PostPayload<AddMiscellaneousOption>(opt, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<AddMiscellaneousOption>(opt, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddMiscellaneousOption>.UpdateDbSet(opt, WebConstants.AddMiscellaneousOption, "ReferenceNbr", opt.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2013,21 +2179,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/misc-details")]
-        public async Task<IActionResult> FindTraditionalBusinessStep12([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep12([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep12");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep12");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step12DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step12DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<AddMiscellaneousOption>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.AddMiscellaneousOption);
+
+                var model = _mapper.Map<Step12DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -2049,7 +2219,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/traditional/other-medical-info")]
-        public async Task<IActionResult> SaveOtherMedicalInfo([FromBody] NewOtherMedicalInfoForm payload)
+        public IActionResult SaveOtherMedicalInfo([FromBody] NewOtherMedicalInfoForm payload)
         {
             try
             {
@@ -2075,13 +2245,17 @@ namespace SAM.API.Controllers
                     UserEmail = userEmail
                 };
 
-                var url = _configuration.GetValue<string>("AppSettings:SaveOtherMedicalInfo");
+                //var url = _configuration.GetValue<string>("AppSettings:SaveOtherMedicalInfo");
 
-                await DataServices<string>.PostPayload<AddOtherMedicalInfo>(opt, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<AddOtherMedicalInfo>(opt, url, _httpClientFactory);
+
+                var isSuccessful = RoutesController<AddOtherMedicalInfo>.UpdateDbSet(opt, WebConstants.AddOtherMedicalInfo, "ReferenceNbr", opt.ReferenceNbr);
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2098,21 +2272,25 @@ namespace SAM.API.Controllers
 
         [HttpGet]
         [Route("data-capture/traditional/other-medical-info")]
-        public async Task<IActionResult> FindTraditionalBusinessStep13([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
+        public IActionResult FindTraditionalBusinessStep13([FromQuery] string RefNbr, [FromQuery] string ContentTypeCode)
         {
             try
             {
-                var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep13");
+                //var url = _configuration.GetValue<string>("AppSettings:FindTraditionalBusinessStep13");
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["ContentTypeCode"] = ContentTypeCode,
-                };
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["ContentTypeCode"] = ContentTypeCode,
+                //};
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var uri = QueryHelpers.AddQueryString(url, query);
 
-                var model = await DataServices<Step13DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+                //var model = await DataServices<Step13DataCaptureFormTraditionalDto>.GetPayload(uri, _httpClientFactory);
+
+                var matched = Repository<AddOtherMedicalInfo>.Find(u => u.ReferenceNbr == RefNbr, WebConstants.AddOtherMedicalInfo);
+
+                var model = _mapper.Map<Step13DataCaptureFormTraditionalDto>(matched);
 
                 return StatusCode(200, new
                 {
@@ -2132,14 +2310,17 @@ namespace SAM.API.Controllers
             }
         }
 
-
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Route("data-capture/traditional/supporting-docs")]
-        public async Task<IActionResult> SaveSupportingDocs([FromQuery] string RefNbr, [FromQuery] string DocType)
+        public IActionResult SaveSupportingDocs([FromQuery] string RefNbr, string DocType, string ContentTypeCode)
         {
             try
             {
+                string webRootPath = _webHostEnvironment.WebRootPath;
+
+                var uploads = webRootPath + WebConstants.ImagePath;
+
                 var data = Request.Form.Files;
 
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
@@ -2147,22 +2328,73 @@ namespace SAM.API.Controllers
                 if (data.Count > 0 && data != null)
                 {
                     if (data[0] != null)
-                    { 
+                    {
+                        //var supportingFile = new SupportingDocPayload()
+                        //{
+                        //    ReferenceNbr = RefNbr,
+                        //    DocType = DocType,
+                        //    FileName = data[0].FileName,
+                        //    UserEmail = userEmail,
+                        //    ContentDispositionHeaderValue = data[0].ContentDisposition,
+                        //    ContentType = data[0].ContentType,
+                        //    ContentTypeCode = ContentTypeCode,
+                        //    Name = data[0].Name,
+                        //    Size = data[0].Length,
+                        //    LastUpdatedUser = userEmail,
+                        //};
+
+                        byte[] convData;
+
+                        var dataByte = data[0];
+
+                        using (var ms = new MemoryStream())
+                        {
+                            dataByte.CopyTo(ms);
+                            //supportingFile.Data = ms.ToArray();
+                            convData = ms.ToArray();
+                        }
+
+                        //var url = _configuration.GetValue<string>("AppSettings:SaveSupportingDocs");
+
+                        //var res = await DataServices<string>.PostPayload<SupportingDocPayload>(supportingFile, url, _httpClientFactory);
+
+                        var fileExtention = Path.GetExtension(data[0].FileName);
+
+                        string docFileName = ((RefNbr + "_" + DocType).Replace("/", "")) + fileExtention;
+
+                        if (docFileName.Length > 50) docFileName = docFileName.Remove(0, docFileName.Length - 50);
+
+                        var filename = uploads + docFileName;
+
+                        ControllerHelper.DeleteFile(filename);
+
+                        ControllerHelper.SaveFileToDirectory(convData, filename);
+
                         var supportingFile = new SupportingDocPayload()
-                        { 
+                        {
                             ReferenceNbr = RefNbr,
                             DocType = DocType,
+                            FileName = docFileName,
                             UserEmail = userEmail,
-                            Data = data
+                            ContentDispositionHeaderValue = data[0].ContentDisposition,
+                            ContentType = data[0].ContentType,
+                            ContentTypeCode = ContentTypeCode,
+                            Name = data[0].Name,
+                            Size = data[0].Length,
+                            LastUpdatedUser = userEmail,
+                            FileUrl = "",
+                            Data = new byte[(new Random().Next(0,1))],
+                            LastUpdated = DateTime.Now
                         };
 
-                        var url = _configuration.GetValue<string>("AppSettings:SaveSupportingDocs");
+                        //var res = _cpcServices.SaveSupportingDoc(supportingFile);
+                        var isSuccessful = RoutesController<SupportingDocPayload>.UpdateDocDbSet(supportingFile, WebConstants.ProposalPackFiles, "ReferenceNbr", RefNbr, DocType);
 
-                        await DataServices<string>.PostPayload<SupportingDocPayload>(supportingFile, url, _httpClientFactory);
+                        var res = isSuccessful ? "Success" : null;
 
                         return StatusCode(201, new
                         {
-                            OperationOutcome = "Success"
+                            OperationOutcome = res
                         });
                     }
 
@@ -2198,32 +2430,72 @@ namespace SAM.API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("data-capture/traditional/supporting-docs")]
+        public IActionResult GetSupportingDocs([FromQuery] string refNbr, string contenttype)
+        {
+            try
+            {
+                //var url = _configuration.GetValue<string>("AppSettings:GetSupportingDocs");
+
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["refNbr"] = refNbr,
+                //    ["contenttype"] = contenttype
+                //};
+
+                //var uri = QueryHelpers.AddQueryString(url, query);
+
+                //var files = await DataServices<List<SupportingDocFile>>.GetPayload(uri, _httpClientFactory);
+
+                var files = Repository<SupportingDocFile>.GetAll(WebConstants.ProposalPackFiles, u => u.ReferenceNbr == refNbr);
+
+                return StatusCode(200, files);
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
+
+                return StatusCode(500, new
+                {
+                    ErrorDescription = ex.Message,
+                    ExceptionType = "GetSupportingDocsError"
+                });
+            }
+        }
 
         [HttpGet]
         [Route("data-capture/traditional/supporting-doc")]
-        public async Task<IActionResult> GetFile([FromQuery] string RefNbr, [FromQuery] string DocType)
+        public IActionResult GetFile([FromQuery] string RefNbr, string DocType, string ContentType)
         {
-            //string webRootPath = _webHostEnvironment.WebRootPath;
+            string webRootPath = _webHostEnvironment.WebRootPath;
 
             try
             {
                 //var uploads = webRootPath + WebConstants.ImagePath;
-                //var uploads = @"https://localhost:7178/cpc_files/";
+                var uploads = @"https://localhost:7178/cpc_files/";
 
-                var url = _configuration.GetValue<string>("AppSettings:GetFile");
+                //var existingFile = _cpcServices.GetFile(RefNbr, DocType, ContentType);
 
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                    ["DocType"] = DocType,
-                };
+                var existingFile = Repository<SupportingDocFile>.Find(u => u.ReferenceNbr == RefNbr && u.DocType == DocType, WebConstants.ProposalPackFiles);
 
-                var uri = QueryHelpers.AddQueryString(url, query);
+                //var url = _configuration.GetValue<string>("AppSettings:GetFile");
 
-                var existingFile = await DataServices<SupportingDocFile>.GetPayload(uri, _httpClientFactory);
+                //var query = new Dictionary<string, string>()
+                //{
+                //    ["RefNbr"] = RefNbr,
+                //    ["DocType"] = DocType,
+                //    ["ContentType"] = ContentType,
+                //};
+
+                //var uri = QueryHelpers.AddQueryString(url, query);
+
+                //var existingFile = await DataServices<SupportingDocFile>.GetPayload(uri, _httpClientFactory);
 
                 if (existingFile != null)
                 {
+                    existingFile.FileUrl = uploads + existingFile.FileName;
+
                     return StatusCode(200, new
                     {
                         FoundRecord = existingFile != null,
@@ -2251,52 +2523,51 @@ namespace SAM.API.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("data-capture/traditional/supporting-docs")]
-        public async Task<IActionResult> GetSupportingDocs([FromQuery] string RefNbr)
-        {
-            try
-            {
-                var url = _configuration.GetValue<string>("AppSettings:GetSupportingDocs");
-
-                var query = new Dictionary<string, string>()
-                {
-                    ["RefNbr"] = RefNbr,
-                };
-
-                var uri = QueryHelpers.AddQueryString(url, query);
-
-                var files = await DataServices<List<SupportingDocFile>>.GetPayload(uri, _httpClientFactory);
-
-                return StatusCode(200, files);
-            }
-            catch (Exception ex)
-            {
-                log.Error(DateTime.Now.ToString(), ex);
-
-                return StatusCode(500, new
-                {
-                    ErrorDescription = ex.Message,
-                    ExceptionType = "GetSupportingDocsError"
-                });
-            }
-        }
-
         [HttpPost]
         [Route("data-capture/submit-content")]
-        public async Task<IActionResult> SubmitProposalPackContent([FromBody] SubmitProposalPackContentForm payload)
+        public IActionResult SubmitProposalPackContent([FromBody] SubmitProposalPackContentForm payload)
         {
             try
             {
                 var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
-                var url = _configuration.GetValue<string>("AppSettings:SubmitProposalPackContent");
+                //var url = _configuration.GetValue<string>("AppSettings:SubmitProposalPackContent");
+                //var res = await DataServices<string>.PostPayload<SubmitProposalPackContentForm>(payload, url, _httpClientFactory);
 
-                await DataServices<string>.PostPayload<SubmitProposalPackContentForm>(payload, url, _httpClientFactory);
+                var matched = Repository<CpcProposalPack>.Find(u => u.ReferenceNumber == payload.ReferenceNbr, WebConstants.ProposalPack);
+
+                var isSuccessful = false;
+
+                if (matched != null)
+                {
+                    matched.PpcStatus = "SAVED";
+
+                    isSuccessful = RoutesController<CpcProposalPack>.UpdateDbSet(matched, WebConstants.ProposalPack, "ReferenceNbr", payload.ReferenceNbr);
+
+                    if (isSuccessful)
+                    {
+                        var matchedContents = Repository<ProposalPackContentDto>.GetAll(WebConstants.ProposalPackContent, u => u.ProposalPackRefNbr == payload.ReferenceNbr);
+
+                        if (matchedContents != null && matchedContents.Count() > 0)
+                        {
+                            //isSuccessful = RoutesController<ProposalPackContentDto>.DeleteRangeDbSet("ProposalPackRefNbr", payload.ReferenceNbr, WebConstants.ProposalPackContent);
+                            isSuccessful = RoutesController<ProposalPackContentDto>.DeleteDbSet("ProposalPackRefNbr", payload.ReferenceNbr, WebConstants.ProposalPackContent);
+
+                            foreach (var item in matchedContents)
+                            {
+                                item.ContentStatus = "SAVED";
+
+                                isSuccessful = RoutesController<ProposalPackContentDto>.PostDbSet(item, WebConstants.ProposalPackContent);
+                            }
+                        }
+                    }
+                }
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2313,7 +2584,7 @@ namespace SAM.API.Controllers
 
         [HttpPost]
         [Route("data-capture/submit-proposal-pack")]
-        public async Task<IActionResult> SubmitProposalPack([FromBody] SubmitProposalPackForm payload)
+        public IActionResult SubmitProposalPack([FromBody] SubmitProposalPackForm payload)
         {
             try
             {
@@ -2325,13 +2596,44 @@ namespace SAM.API.Controllers
 
                 payload.UserEmail = userEmail;
 
-                var url = _configuration.GetValue<string>("AppSettings:SubmitProposalPack");
+                //var url = _configuration.GetValue<string>("AppSettings:SubmitProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                //var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+
+                var matched = Repository<CpcProposalPack>.Find(u => u.ReferenceNumber == payload.ReferenceNbr, WebConstants.ProposalPack);
+
+                var isSuccessful = false;
+
+                if (matched != null)
+                {
+                    matched.PpcStatus = "SUBMITTED";
+
+                    isSuccessful = RoutesController<CpcProposalPack>.UpdateDbSet(matched, WebConstants.ProposalPack, "ReferenceNbr", payload.ReferenceNbr);
+
+                    if (isSuccessful)
+                    {
+                        var matchedContents = Repository<ProposalPackContentDto>.GetAll(WebConstants.ProposalPackContent, u => u.ProposalPackRefNbr == payload.ReferenceNbr);
+
+                        if (matchedContents != null && matchedContents.Count() > 0)
+                        {
+                            //isSuccessful = RoutesController<ProposalPackContentDto>.DeleteRangeDbSet("ProposalPackRefNbr", payload.ReferenceNbr, WebConstants.ProposalPackContent);
+                            isSuccessful = RoutesController<ProposalPackContentDto>.DeleteDbSet("ProposalPackRefNbr", payload.ReferenceNbr, WebConstants.ProposalPackContent);
+
+                            foreach (var item in matchedContents)
+                            {
+                                item.ContentStatus = "SUBMITTED";
+
+                                isSuccessful = RoutesController<ProposalPackContentDto>.PostDbSet(item, WebConstants.ProposalPackContent);
+                            }
+                        }
+                    }
+                }
+
+                var res = isSuccessful ? "Success" : null;
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2358,11 +2660,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:PickInboundProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2389,11 +2691,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:AcceptInboundProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2420,11 +2722,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:RejectInboundProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2451,11 +2753,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:PushInboundProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2482,11 +2784,11 @@ namespace SAM.API.Controllers
 
                 var url = _configuration.GetValue<string>("AppSettings:ApproveProposalPack");
 
-                await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
+                var res = await DataServices<string>.PostPayload<SubmitProposalPackForm>(payload, url, _httpClientFactory);
 
                 return StatusCode(201, new
                 {
-                    OperationOutcome = "Success"
+                    OperationOutcome = res
                 });
             }
             catch (Exception ex)
@@ -2506,9 +2808,77 @@ namespace SAM.API.Controllers
 
 
 
+//[HttpGet]
+//[Route("data-capture/traditional/supporting-doc")]
+//public async Task<IActionResult> GetFile([FromQuery] string RefNbr, string DocType, string ContentType)
+//{
+//    string webRootPath = _webHostEnvironment.WebRootPath;
+
+//    try
+//    {
+//        //var uploads = webRootPath + WebConstants.ImagePath;
+//        //var uploads = @"https://localhost:7178/cpc_files/";
+
+//        var uploads = @"https://localhost:5003/cpc_files/";
+
+//        var existingFile = _cpcServices.GetFile(RefNbr, DocType, ContentType);
+
+//        //var url = _configuration.GetValue<string>("AppSettings:GetFile");
+
+//        //var query = new Dictionary<string, string>()
+//        //{
+//        //    ["RefNbr"] = RefNbr,
+//        //    ["DocType"] = DocType,
+//        //    ["ContentType"] = ContentType,
+//        //};
+
+//        //var uri = QueryHelpers.AddQueryString(url, query);
+
+//        //var existingFile = await DataServices<SupportingDocFile>.GetPayload(uri, _httpClientFactory);
+
+//        if (existingFile != null)
+//        {
+//          existingFile.FileUrl = uploads + existingFile.FileName;
+
+//            return StatusCode(200, new
+//            {
+//                FoundRecord = existingFile != null,
+//                Data = existingFile
+//            });
+//        }
+//        else
+//        {
+//            return StatusCode(500, new
+//            {
+//                ErrorDescription = "No record found",
+//                ExceptionType = "RetrieveDataCaptureFormError"
+//            });
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        log.Error(DateTime.Now.ToString(), ex);
+
+//        return StatusCode(500, new
+//        {
+//            ErrorDescription = ex.Message,
+//            ExceptionType = "RetrieveDataCaptureFormError"
+//        });
+//    }
+//}
 
 
 
+
+
+//var query = new Dictionary<string, string>()
+//{
+//    ["ReferenceNbr"] = RefNbr,
+//    ["DocType"] = DocType,
+//    ["UserEmail"] = userEmail,
+//};
+
+//var uri = QueryHelpers.AddQueryString(url, query);
 //return StatusCode(500, new
 //{
 //    ErrorDescription = "No File Uploaded",
@@ -2578,7 +2948,7 @@ namespace SAM.API.Controllers
 
 //        return StatusCode(201, new
 //        {
-//            OperationOutcome = "Success"
+//            OperationOutcome = res
 //        });
 
 //    }
@@ -2656,7 +3026,7 @@ namespace SAM.API.Controllers
 
 //            return StatusCode(201, new
 //            {
-//                OperationOutcome = "Success"
+//                OperationOutcome = res
 //            });
 //        }
 //        catch (Exception ex)
@@ -2854,7 +3224,7 @@ namespace SAM.API.Controllers
 
 //        return StatusCode(201, new
 //        {
-//            OperationOutcome = "Success"
+//            OperationOutcome = res
 //        });
 //    }
 //    catch (Exception ex)

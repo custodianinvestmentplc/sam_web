@@ -1,0 +1,911 @@
+﻿@model SAM.WEB.Domain.Dtos.CpcDataCaptureDto
+
+@{
+    Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+}
+
+@if (Convert.ToBoolean(ViewBag.CanViewPermission))
+{
+
+    var disabledClassVar = "disable-div";
+    var isDisabledClassVar = "";
+
+    if (Convert.ToBoolean(ViewBag.CanEditPermission))
+    {
+        disabledClassVar = "";
+    }
+
+    if (Convert.ToBoolean(ViewBag.IsDisbled))
+    {
+        isDisabledClassVar = "disable-div";
+    }
+
+
+    ViewBag.RefNbr = Model.ReferenceNbr;
+    ViewBag.ContentTypeCode = Model.ContentTypeCode;
+
+
+
+    <div id="disabled-section" class="@disabledClassVar">
+
+        <div>
+            <div class="d-flex align-items-center">
+                <span style="font-size:30px;">
+                    <a href="javascript:history.go(-1)">
+                        <i class="bi bi-arrow-left-circle-fill p-2"></i>
+                    </a>
+                </span>
+                <h3 class="p-2">Traditional Business Data Capture Form - (@Model.ReferenceNbr)</h3>
+            </div>
+            <hr />
+        </div>
+        <div>
+            <div col="row">
+                <div class="col-10 shadow-lg p-5 pt-2 mt-5">
+                    @*<div class="" id="data-capture-form-section">*@
+                    <div class="@isDisabledClassVar" >
+                        <!--Step 1: General Information-->
+                        <div class="step active">
+                            <h4 class="text-success">General Information:</h4>
+                            <form class="row g-3 mt-4" id="step-1">
+                                <!--Row 1-->
+                                <div class="col-md-4">
+                                    <label for="cbo-title" class="form-label">Title</label>
+                                    <select id="cbo-title" class="form-select">
+                                        <option value="Mr" selected>Mr.</option>
+                                        <option value="Mrs">Mrs.</option>
+                                        <option value="Ms">Ms.</option>
+                                        <option value="Miss">Miss.</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-title-others" class="form-label">Others</label>
+                                    <input type="text" class="form-control" id="txt-title-others" disabled>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="cbo-product" class="form-label">Product</label>
+                                    <select id="cbo-product" class="form-select">
+
+                                        @if (Model.Products != null)
+                                        {
+                                            @if (Model.Products.Count > 0)
+                                            {
+                                                foreach (var item in Model.Products)
+                                                {
+                                                    <option value="@item.ProductCode">
+                                                        @item.ProductName
+                                                    </option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <!--Row 2-->
+                                <div class="col-md-4">
+                                    <label for="txt-surname" class="form-label">Surname</label>
+                                    <input type="text" class="form-control" id="txt-surname">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-firstname" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="txt-firstname">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-middlename" class="form-label">Middle Name</label>
+                                    <input type="text" class="form-control" id="txt-middlename">
+                                </div>
+                                <!--Row 3-->
+                                <div class="col-md-4">
+                                    <label for="txt-dob" class="form-label">Date of Birth</label>
+                                    <input type="date" min="" max="" class="form-control" id="txt-dob">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="cbo-gender" class="form-label">Gender</label>
+                                    <select id="cbo-gender" class="form-select">
+                                        <option value="M" selected>Male</option>
+                                        <option value="F">Female</option>
+                                        <option value="O">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-gender-others" class="form-label">Other Gender</label>
+                                    <input type="text" class="form-control" id="txt-gender-others" disabled>
+                                </div>
+                                <!--Row 4-->
+                                <div class="col-md-4">
+                                    <label for="cbo-state-of-origin" class="form-label">State of Origin</label>
+                                    <select id="cbo-state-of-origin" class="form-select">
+
+                                        @if (Model.States != null)
+                                        {
+                                            @if (Model.States.Count > 0)
+                                            {
+                                                foreach (var item in Model.States)
+                                                {
+                                                    <option value="@item.StateCode">
+                                                        @item.StateName
+                                                    </option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="cbo-nationality" class="form-label">Nationality</label>
+                                    <select id="cbo-nationality" class="form-select">
+                                        <option value="Nigerian" selected>Nigerian</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-nationality-others" class="form-label">Country of Origin</label>
+                                    <input type="text" class="form-control" id="txt-nationality-others" disabled>
+                                </div>
+                                <!--Row 5-->
+                                <div class="col-md-4">
+                                    <label for="txt-town-or-city" class="form-label">Town or City of Birth</label>
+                                    <input type="text" class="form-control" id="txt-town-or-city">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-country-of-birth" class="form-label">Country of Birth</label>
+                                    <input type="text" class="form-control" id="txt-country-of-birth">
+                                </div>
+                                <!--Row 6-->
+                                <div class="col-12">
+                                    <label for="txt-address" class="form-label">Residential Address</label>
+                                    <input type="text" class="form-control" id="txt-address">
+                                </div>
+                                <!--Row 7-->
+                                <div class="col-md-3">
+                                    <label for="txt-address-town" class="form-label">Town of Address</label>
+                                    <input type="text" class="form-control" id="txt-address-town">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-address-city" class="form-label">City of Address</label>
+                                    <input type="text" class="form-control" id="txt-address-city">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-address-state" class="form-label">State of Address</label>
+                                    <input type="text" class="form-control" id="txt-address-state">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-address-country" class="form-label">Country of Address</label>
+                                    <input type="text" class="form-control" id="txt-address-country">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 2: Tax Related Information-->
+                        <div class="step">
+                            <h4 class="text-success">Tax Related Information:</h4>
+                            <form class="row g-3 mt-4" id="step-2">
+                                <!--Row 1-->
+                                <div class="col-md-6">
+                                    <label for="txt-tin" class="form-label">
+                                        Tax Identification Number of Country of
+                                        Residence
+                                    </label>
+                                    <input type="text" class="form-control" id="txt-tin">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="txt-employer" class="form-label">Name of Employer</label>
+                                    <input type="text" class="form-control" id="txt-employer">
+                                </div>
+                                <!--Row 2-->
+                                <div class="col-12">
+                                    <label for="txt-employer-address" class="form-label">Address of Employer</label>
+                                    <input type="text" class="form-control" id="txt-employer-address">
+                                </div>
+                                <!--Row 3-->
+                                <div class="col-md-4">
+                                    <label for="txt-email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="txt-email">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-telephone" class="form-label">Telephone Number</label>
+                                    <input type="email" class="form-control" id="txt-telephone">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-religion" class="form-label">Religion</label>
+                                    <input type="email" class="form-control" id="txt-religion">
+                                </div>
+                                <!--Row 4-->
+                                <div class="col-md-6">
+                                    <label for="txt-occupation" class="form-label">Occupation</label>
+                                    <input type="text" class="form-control" id="txt-occupation">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="txt-source-of-funds" class="form-label">Source of Funds</label>
+                                    <input type="text" class="form-control" id="txt-source-of-funds">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 3: Identification Related Information-->
+                        <div class="step">
+                            <h4 class="text-success">Identification Related Information:</h4>
+                            <form class="row g-3 mt-4" id="step-3">
+                                <!--Row 1-->
+                                <div class="col-md-4">
+                                    <label for="cbo-identification" class="form-label">Means of Identification</label>
+                                    <select id="cbo-identification" class="form-select">
+                                        <option value="DriversLicense" selected>Drivers License</option>
+                                        <option value="IntPassport">International Passport</option>
+                                        <option value="NationalId">National ID Card</option>
+                                        <option value="VotersCard">Voters Card</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-identification-others" class="form-label">
+                                        Other Form of
+                                        Identification
+                                    </label>
+                                    <input type="text" class="form-control" id="txt-identification-others" disabled>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-identification-nbr" class="form-label">Identification Number</label>
+                                    <input type="text" class="form-control" id="txt-identification-nbr">
+                                </div>
+                                <!--Row 2-->
+                                <div class="col-md-4">
+                                    <label for="cbo-id-issue-country" class="form-label">Country of Issue</label>
+                                    <select id="cbo-id-issue-country" class="form-select">
+                                        <option value="Nigeria" selected>Nigeria</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-id-issue-country-others" class="form-label">Other Country of Issue</label>
+                                    <input type="text" class="form-control" id="txt-id-issue-country-others" disabled>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-id-authority" class="form-label">Issuing Authority</label>
+                                    <input type="text" class="form-control" id="txt-id-authority">
+                                </div>
+                                <!--Row 3-->
+                                <div class="col-md-4">
+                                    <label for="txt-id-issue-date" class="form-label">Date of Issue</label>
+                                    <input type="date" min="" max="" class="form-control" id="txt-id-issue-date">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-id-expiry-date" class="form-label">Date of Expiry</label>
+                                    <input type="date" min="" max="" class="form-control" id="txt-id-expiry-date">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-residential-permit-nbr" class="form-label">
+                                        Residential Permit Nbr (for
+                                        Non-Nigerians)
+                                    </label>
+                                    <input type="text" class="form-control" id="txt-residential-permit-nbr">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 4: Banking Related Information-->
+                        <div class="step">
+                            <h4 class="text-success">Banking Related Information:</h4>
+                            <form class="row g-3 mt-4" id="step-4">
+                                <!--Row 1-->
+                                <div class="col-md-4">
+                                    <label for="txt-bank-name" class="form-label">Name of Bank</label>
+                                    <input type="text" class="form-control" id="txt-bank-name">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-acct-nbr" class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="txt-acct-nbr">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-acct-name" class="form-label">Account Name</label>
+                                    <input type="text" class="form-control" id="txt-acct-name">
+                                </div>
+                                <!--Row 2-->
+                                <div class="col-md-4">
+                                    <label for="txt-bvn" class="form-label">Bank Verification Number (BVN)</label>
+                                    <input type="text" class="form-control" id="txt-bvn">
+                                </div>
+                                <div class="col-md-8">
+                                    <label for="txt-prod-name" class="form-label">Name of Banking Product</label>
+                                    <input type="text" class="form-control" id="txt-prod-name">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 5: Mortgage Protection Policy-->
+                        <div class="step">
+                            <h4 class="text-success">Mortgage Protection Policy Related Information:</h4>
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="mortgage-checkbox"
+                                           id="mortgage-checkbox">
+                                    <label class="form-check-label" for="mortgage-checkbox">
+                                        Applicable for Credit Life only
+                                    </label>
+
+                                    <div id="mortgage-section" class="disable-div">
+                                        <form class="row g-3 mt-4" id="step-5">
+                                            <!--Row 1-->
+                                            <div class="col-md-4">
+                                                <label for="txt-mortgage-name" class="form-label">
+                                                    Name of Mortgage
+                                                    Institution
+                                                </label>
+                                                <input type="text" class="form-control" id="txt-mortgage-name">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <label for="txt-mortgage-address" class="form-label">
+                                                    Address of Mortgage
+                                                    Institution
+                                                </label>
+                                                <input type="text" class="form-control" id="txt-mortgage-address">
+                                            </div>
+                                            <!--Row 2-->
+                                            <div class="col-md-4">
+                                                <label for="txt-mortgage-interest" class="form-label">Interest Rate</label>
+                                                <input type="number" min="0" class="form-control" id="txt-mortgage-interest">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!--Step 6: Children Educational Endowment Plan-->
+                        <div class="step">
+                            <h4 class="text-success">Children Educational Endowment Plan Related Information:</h4>
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="children-edu-edwn-checkbox"
+                                           id="children-edu-edwn-checkbox">
+                                    <label class="form-check-label" for="children-edu-edwn-checkbox">
+                                        Please check if applicable
+                                    </label>
+
+                                    <div id="children-education-endowment-section" class="disable-div">
+                                        <form class="row g-3 mt-4" id="step-6">
+                                            <!--Row 1-->
+                                            <div class="col-md-4">
+                                                <label for="txt-school-fees" class="form-label">School Fees per Term</label>
+                                                <input type="number" min="0" class="form-control" id="txt-school-fees">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="cbo-edowment-benefit" class="form-label">Expected Benefits</label>
+                                                <select id="cbo-edowment-benefit" class="form-select">
+                                                    <option value="0" selected>Nill</option>
+                                                    <option value="0.5">50%</option>
+                                                    <option value="1">100%</option>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Step 7: Dignity Plan-->
+                        <div class="step">
+                            <h4 class="text-success">Custodian Dignity Plan (Funeral Only) Related Information:</h4>
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="dignity-plan-checkbox"
+                                           id="dignity-plan-checkbox">
+                                    <label class="form-check-label" for="dignity-plan-checkbox">
+                                        Please check if applicable
+                                    </label>
+
+                                    <div id="dignity-plan-section" class="disable-div">
+                                        <button type="button" class="mt-4" id="btn-add-digital-plan">
+                                            Add Nominated
+                                            Enrollees
+                                        </button>
+
+                                        <form class="row g-3 mt-1" id="step-7">
+                                            <!--Row 1-->
+                                            <div class="col-12 mt-2">
+                                                <table class="table table-hover" id="tbl-digital-plan">
+                                                    <thead class="table-dark">
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Date of Birth</th>
+                                                            <th>Relationship</th>
+                                                            <th>Sum Assured</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Step 8: Nominated Beneficiary-->
+                        <div class="step">
+                            <h4 class="text-success">Nominated Beneficiary Related Information:</h4>
+                            <form class="row g-3 mt-2" id="step-8">
+                                <!--Row 1-->
+                                <div class="col-12">
+                                    <button type="button" class="btn btn-primary" id="btn-beneficiary-modal">
+                                        Add
+                                        Beneficiary
+                                    </button>
+                                    <table class="table table-hover mt-2" id="tbl-beneficiaries">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Date of Birth</th>
+                                                <th>Relationship</th>
+                                                <th>Proportion of Benefit</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 9: Sum Assured-->
+                        <div class="step">
+                            <h4 class="text-success">Sum Assured Related Information:</h4>
+                            <form class="row g-3 mt-3" id="step-9">
+                                <div class="col-md-3">
+                                    <label for="txt-sum-assured" class="form-label">Sum Assured</label>
+                                    <input type="number" min="0" class="form-control" id="txt-sum-assured">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-term" class="form-label">Term (Nbr of Years)</label>
+                                    <input type="number" min="0" class="form-control" id="txt-term">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-first-prem-paid" class="form-label">First Premium Paid</label>
+                                    <input type="number" min="0" class="form-control" id="txt-first-prem-paid">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-regular-prem" class="form-label">Regular Premium</label>
+                                    <input type="number" min="0" class="form-control" id="txt-regular-prem">
+                                </div>
+                                <!--Row 2-->
+                                <div class="col-md-3">
+                                    <label for="cbo-prem-pymt-freq" class="form-label">Payment Frequency</label>
+                                    <select id="cbo-prem-pymt-freq" class="form-select">
+                                        <option value="MONTHLY" selected>Monthly</option>
+                                        <option value="QUARTERLY">Quarterly</option>
+                                        <option value="HALF_YEARLY">Half Yearly</option>
+                                        <option value="YEARLY">Yearly</option>
+                                        <option value="SINGLE">Single Payment</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-commencement-date" class="form-label">Commencement Date</label>
+                                    <input type="date" min="" max="" class="form-control" id="txt-commencement-date">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="txt-maturity-date" class="form-label">Maturity Date</label>
+                                    <input type="date" min="" max="" class="form-control" id="txt-maturity-date">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="cbo-pymt-mode" class="form-label">Payment Mode</label>
+                                    <select id="cbo-pymt-mode" class="form-select">
+                                        <option value="CHEQUE" selected>Cheque</option>
+                                        <option value="POS">POS</option>
+                                        <option value="PAY_DIRECT">Pay Direct</option>
+                                        <option value="QUICK_TELLER">Quick Teller</option>
+                                        <option value="REMITTER">Remitter</option>
+                                        <option value="ONLINE_PAYMENT">Online Payment</option>
+                                        <option value="DIRECT">Direct Payment</option>
+                                        <option value="STANDING_INSTRUCTION">Standing Instruction</option>
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 10: Other Related Information-->
+                        <div class="step">
+                            <h4 class="text-success">Other Related Information:</h4>
+                            <div class="mt-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="chk-other-life-products"
+                                           id="chk-other-life-products">
+                                    <label class="form-check-label" for="chk-other-life-products">
+                                        Yes, I have other life insurance policy / products
+                                    </label>
+
+                                    <div id="life-policy-section" class="disable-div">
+                                        <form class="row g-3 mt-2" id="step-10">
+                                            <!--Row 1-->
+                                            <div class="col-md-6">
+                                                <label for="txt-insurer-name" class="form-label">Name of Insurer</label>
+                                                <input type="text" class="form-control" id="txt-insurer-name">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="txt-insurer-sum-assured" class="form-label">
+                                                    Total Sum
+                                                    Assured
+                                                </label>
+                                                <input type="number" min="0" class="form-control" id="txt-insurer-sum-assured">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="chk-declined-life-proposal"
+                                           id="chk-declined-life-proposal">
+                                    <label class="form-check-label" for="chk-declined-life-proposal">
+                                        Yes, I have had my life insurance proposal declined in the past
+                                    </label>
+
+                                    <div id="declined-life-policy-section" class="disable-div">
+                                        <form class="row g-3 mt-2" id="step-10">
+                                            <!--Row 1-->
+                                            <div class="col-md-12">
+                                                <label for="txt-declined-policy-details" class="form-label">
+                                                    Please provide
+                                                    details
+                                                </label>
+                                                <input type="text" class="form-control" id="txt-declined-policy-details">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Step 11: Medical History-->
+                        <div class="step">
+                            <h4 class="text-success">Medical History Information:</h4>
+                            <form class="row g-3 mt-4" id="step-11">
+                                <div class="col-md-4">
+                                    <label for="txt-hospital-name" class="form-label">Hospital Name</label>
+                                    <input type="text" class="form-control" id="txt-hospital-name">
+                                </div>
+                                <div class="col-md-8">
+                                    <label for="txt-hospital-address" class="form-label">Hospital Address</label>
+                                    <input type="text" class="form-control" id="txt-hospital-address">
+                                </div>
+                                <!--Row-->
+                                <div class="col-md-4">
+                                    <label for="txt-height" class="form-label">Height (in meters)</label>
+                                    <input type="number" min="0" class="form-control" id="txt-height">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="txt-weight" class="form-label">Weight (in Kg)</label>
+                                    <input type="number" min="0" class="form-control" id="txt-weight">
+                                </div>
+                            </form>
+                        </div>
+
+                        <!--Step 12: Miscellaneous Questions-->
+                        <div class="step">
+                            <h4 class="text-success">Miscellaneous Questions:</h4>
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="chk-sick" id="chk-sick">
+                                    <label class="form-check-label" for="chk-sick">
+                                        Are you currently sick or on any form of medication?
+                                    </label>
+
+                                    <div id="chk-sick-section" class="disable-div">
+                                        <form class="row g-3 mt-2">
+                                            <!--Row 1-->
+                                            <div class="col-12">
+                                                <label for="txt-sick-detals" class="form-label">Please provide details</label>
+                                                <input type="text" class="form-control" id="txt-sick-detals">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="chk-pregnant" id="chk-pregnant">
+                                    <label class="form-check-label" for="chk-pregnant">
+                                        If female, are you currently pregnant?
+                                    </label>
+
+                                    <div id="chk-pregnane-section" class="disable-div">
+                                        <form class="row g-3 mt-1">
+                                            <!--Row 1-->
+                                            <div class="col-12">
+                                                <label for="txt-pregnant-detals" class="form-label">
+                                                    What is the expected month
+                                                    of delivery?
+                                                </label>
+                                                <input type="text" class="form-control" id="txt-pregnant-detals">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-cigarette" id="chk-cigarette">
+                                    <label class="form-check-label" for="chk-cigarette">
+                                        Have you smoked cigarette in the past 12 months?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-tb" id="chk-tb">
+                                    <label class="form-check-label" for="chk-tb">
+                                        Have you suffered or are you suffering from Tuberculosis?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-epilepsy" id="chk-epilepsy">
+                                    <label class="form-check-label" for="chk-epilepsy">
+                                        Have you suffered or are you suffering from Epilepsy?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-heart-disease"
+                                           id="chk-heart-disease">
+                                    <label class="form-check-label" for="chk-heart-disease">
+                                        Have you suffered or are you suffering from Heart Disease?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-insanity" id="chk-insanity">
+                                    <label class="form-check-label" for="chk-insanity">
+                                        Have you suffered or are you suffering from Insanity?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-diabetes" id="chk-diabetes">
+                                    <label class="form-check-label" for="chk-diabetes">
+                                        Have you suffered or are you suffering from Diabetes?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-hypertension"
+                                           id="chk-hypertension">
+                                    <label class="form-check-label" for="chk-hypertension">
+                                        Have you suffered or are you suffering from Hypertension?
+                                    </label>
+                                </div>
+
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="chk-other-illness"
+                                           id="chk-other-illness">
+                                    <label class="form-check-label" for="chk-other-illness">
+                                        Have you suffered or are you suffering from any other illness?
+                                    </label>
+
+                                    <div id="chk-other-illness-section" class="disable-div">
+                                        <form class="row g-3 mt-1">
+                                            <!--Row 1-->
+                                            <div class="col-8">
+                                                <label for="txt-illness-detals" class="form-label">Please specify</label>
+                                                <input type="text" class="form-control" id="txt-illness-detals">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Step 13: Medical History - Additional Information-->
+                        <div class="step">
+                            <h4 class="text-success">Medical History - Additional Information:</h4>
+                            <div id="step-13">
+                                <table class="table table-sm table-borderless">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>SN</th>
+                                            <th>Question</th>
+                                            <th>Response</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="3">Have you ever had:</td>
+                                        </tr>
+                                        <tr>
+                                            <td>a</td>
+                                            <td>Unexplainable, recurrent or persistent fever or skin disorder?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="skin-disorder"
+                                                           value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="skin-disorder"
+                                                           value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>b</td>
+                                            <td>Unexplainable, persistent night sweats?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="night-sweat" value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="night-sweat" value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>c</td>
+                                            <td>Unexplainable weight loss?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="weight-loss" value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="weight-loss" value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>d</td>
+                                            <td>Unexplainable infection or swollen glands?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="swollen-glands"
+                                                           value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="swollen-glands"
+                                                           value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>e</td>
+                                            <td>Chronic or recurrent diarrhea?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="recurrent-diarrhea"
+                                                           value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="recurrent-diarrhea"
+                                                           value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>f</td>
+                                            <td>
+                                                Hepatitis B or sexually transmitted disease, including genital sores or
+                                                discharge?
+                                            </td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="hepatitis-b" value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="hepatitis-b" value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3"></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Are you HIV positive or suffering from AIDS?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="hiv-aids" value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="hiv-aids" value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Have you received blood transfusion within the last five years?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="blood-transfusion"
+                                                           value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="blood-transfusion"
+                                                           value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="mb-3">
+                                                    <label for="sport-name" class="form-label">
+                                                        What games, sports or pastime do
+                                                        you engage in?
+                                                    </label>
+                                                    <input type="text" class="form-control" id="sport-name">
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2">Do you intend to reside outside Nigeria?</td>
+                                            <td>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="reside-outside-ng"
+                                                           value="YES">
+                                                    <label class="form-check-label">Yes</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="reside-outside-ng"
+                                                           value="NO">
+                                                    <label class="form-check-label">No</label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!--Step 14: Upload Supporting Documents-->
+                        <div class="step">
+                            <div id="step-15">
+                                <button type="button" id="save-proposal-form-trad">Save Form and Close</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="mt-4">
+                        <button id="btn-prev" class="btn btn-primary" disabled>Previous</button>
+                        <button id="btn-next" class="btn btn-primary">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @section Scripts{
+
+        <script src="~/js/dataCaptureScript.bundle.js" asp-append-version="true"></script>
+
+        <script>
+
+            function registerRouteAction() {
+
+                document.title = 'CPC - Data Capture Wizard';
+
+                addScriptEventListeners();
+            }
+
+            document.addEventListener("DOMContentLoaded", registerRouteAction);
+
+            const refNbr = '@(ViewBag.RefNbr)';
+            const contentTypeCode = '@(ViewBag.ContentTypeCode)';
+
+            function addScriptEventListeners() {
+                dataCaptureScript.addScriptEventListeners(refNbr, contentTypeCode);
+            }
+
+        </script>
+
+    }
+}
+

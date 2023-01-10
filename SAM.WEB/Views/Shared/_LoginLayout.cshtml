@@ -72,9 +72,9 @@
                     </div>
                     @if (ViewBag.Username != null)
                     {
-                        <div class="col" style="position:absolute; right:0px; padding-right: 200px;">
+                        <div class="col p-1" style="position:absolute; right:150px;">
                             <div class="col">
-                                <h3 class="page-header-title text-white">@ViewBag.Username &nbsp; <i class="bi bi-person-circle fs-4 text-white" aria-label="Top endorsed"></i></h3>
+                                <h3 class="page-header-title fs-4 text-white">@ViewBag.Username &nbsp; <i class="bi bi-person-circle fs-5 text-white" aria-label="Top endorsed"></i></h3>
                             </div>
                         </div>
                     }
@@ -87,7 +87,7 @@
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">
                                     <div class="md-toggle row">
-                                        <div class="col shadow-sm">
+                                        <div class="col shadow-lg">
                                             <a class="nav-link btn btn-sm btn-light text-black" href="https://login.microsoftonline.com/logout.srf">Logout</a>
                                         </div>
                                     </div>
@@ -109,46 +109,46 @@
                         </div>
                         @*<hr class="" />*@
 
-                        @if (ViewBag.Module == "admin" || ViewBag.Module == "client")
-                        {
-                            <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="AgencyOperations" class="btn border text-start list-group-item list-group-item-action"><strong class="">Agency Operation</strong></a>
-                        }
+                        @*@if (ViewBag.Module == "admin" || ViewBag.Module == "client")
+                            {
+                                <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="AgencyOperations" class="btn border text-start list-group-item list-group-item-action"><strong class="">Agency Operation</strong></a>
+                            }*@
                         @if (ViewBag.Module == "agent" || ViewBag.Module == "admin" || ViewBag.Module == "client")
                         {
-                            <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="CPCHub" class="btn border text-start list-group-item list-group-item-action"><strong class="">CPC</strong></a>
+                            <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="CPCHub" class="btn border border-rounded text-start list-group-item list-group-item-action"><strong class="text-primary fs-5">CPC</strong></a>
                         }
-                        @if (ViewBag.Module == "client")
-                        {
-                            <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="PolicyAdmin" class="btn border text-start list-group-item list-group-item-action"><strong class="">Policy Administration</strong></a>
-                            <hr />
+                        @*@if (ViewBag.Module == "client")
+                            {
+                                <a type="button" style="text-align: left;" asp-controller="Modules" asp-action="PolicyAdmin" class="btn border text-start list-group-item list-group-item-action"><strong class="">Policy Administration</strong></a>
+                                <hr />
 
-                            <div class="accordion-item">
-                                <h2 class="accordion-header border" id="headingFlushFour">
-                                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFlushFour" aria-expanded="false" aria-controls="collapseFlushFour">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header border" id="headingFlushFour">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFlushFour" aria-expanded="false" aria-controls="collapseFlushFour">
 
-                                        <strong class="text-primary">Configurations</strong>
+                                            <strong class="text-primary">Configurations</strong>
 
-                                    </button>
-                                </h2>
-                                <div id="collapseFlushFour" class="accordion-collapse collapse" aria-labelledby="headingFlushFour" data-bs-parent="#accordionFlush">
-                                    <div class="accordion-body p-0">
-                                        <div class="list-group" role="tablist">
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFlushFour" class="accordion-collapse collapse" aria-labelledby="headingFlushFour" data-bs-parent="#accordionFlush">
+                                        <div class="accordion-body p-0">
+                                            <div class="list-group" role="tablist">
 
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="UsersProfile" class="list-group-item list-group-item-action">&nbsp;&nbsp;Users Profile</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="RolesSetting" class="list-group-item list-group-item-action">&nbsp;&nbsp;Roles Setting</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="Permissions" class="list-group-item list-group-item-action">&nbsp;&nbsp;Permissions</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="Forms" class="list-group-item list-group-item-action">&nbsp;&nbsp;Forms</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="CPCTypes" class="list-group-item list-group-item-action">&nbsp;&nbsp;CPC Types</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="SupportingDocuments" class="list-group-item list-group-item-action">&nbsp;&nbsp;Supporting Documents</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="CPCProducts" class="list-group-item list-group-item-action">&nbsp;&nbsp;CPC Products</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="Branches" class="list-group-item list-group-item-action">&nbsp;&nbsp;Branches</a>
-                                            <a style="text-align: left;" asp-controller="CPC" asp-action="States" class="list-group-item list-group-item-action">&nbsp;&nbsp;States</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="UsersProfile" class="list-group-item list-group-item-action">&nbsp;&nbsp;Users Profile</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="RolesSetting" class="list-group-item list-group-item-action">&nbsp;&nbsp;Roles Setting</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="Permissions" class="list-group-item list-group-item-action">&nbsp;&nbsp;Permissions</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="Forms" class="list-group-item list-group-item-action">&nbsp;&nbsp;Forms</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="CPCTypes" class="list-group-item list-group-item-action">&nbsp;&nbsp;CPC Types</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="SupportingDocuments" class="list-group-item list-group-item-action">&nbsp;&nbsp;Supporting Documents</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="CPCProducts" class="list-group-item list-group-item-action">&nbsp;&nbsp;CPC Products</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="Branches" class="list-group-item list-group-item-action">&nbsp;&nbsp;Branches</a>
+                                                <a style="text-align: left;" asp-controller="CPC" asp-action="States" class="list-group-item list-group-item-action">&nbsp;&nbsp;States</a>
 
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        }
+                            }*@
                     </div>
                 </div>
 
@@ -196,7 +196,7 @@
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
-    <script src="~/js/login.bundle.js" asp-append-version="true"></script>
+    @*<script src="~/js/login.bundle.js" asp-append-version="true"></script>*@
 
     <script src="~/js/app.bundle.js" asp-append-version="true"></script>
 

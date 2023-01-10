@@ -1,0 +1,302 @@
+﻿@model SAM.WEB.Domain.Dtos.CPCProposalPackProperty
+
+@{
+    Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+}
+
+@if (!string.IsNullOrWhiteSpace(Convert.ToString(TempData["ErrorTitle"])))
+{
+    <partial name="_ErrorView" />
+}
+else
+{
+    if (Convert.ToBoolean(ViewBag.CanViewPermission))
+    {
+
+        var disabledClassVar = "disable-div";
+
+        if (Convert.ToBoolean(ViewBag.CanEditPermission))
+        {
+            disabledClassVar = "";
+        }
+
+
+        ViewBag.RefNbr = Model.ProposalPack.ReferenceNumber;
+
+        <div id="disabled-section" class="@disabledClassVar mt-3">
+
+            <div>
+                <div class="d-flex align-items-center">
+                    <h3 class="p-2">Proposal Pack Property Page</h3>
+                </div>
+                <hr />
+            </div>
+
+            <table class="table table-bordered border-primary">
+                <thead>
+                    @if (Model.ProposalPack != null)
+                    {
+                        <tr>
+                            <th>Proposal Pack Title</th>
+                            <td colspan="5">@Model.ProposalPack.Title</td>
+                        </tr>
+                        <tr>
+                            <th>Branch</th>
+                            <td>@Model.ProposalPack.InitiatingBranchName (@Model.ProposalPack.InitiatingBranchCode)</td>
+                            <th>Agent</th>
+                            <td>@Model.ProposalPack.InitiatingAgentName (@Model.ProposalPack.InitatingAgentCode)</td>
+                            <th>Create Date</th>
+                            <td>@Model.ProposalPack.CreateDate.ToString("dd MMM yyyy") </td>
+                        </tr>
+                    }
+
+                </thead>
+            </table>
+            <hr />
+
+            <div class="my-3 text-secondary">
+                <h5>Content</h5>
+            </div>
+
+            @if (Convert.ToBoolean(ViewBag.SavedStatus))
+            {
+                <div class="my-4" id="btn-submit-div">
+                    <button type="button" id="btn-submit-proposal-pack">Submit Proposal Pack</button>
+                </div>
+            }
+
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button type="button" id="tabFade-1" class="nav-link active fw-bolder supporting-doc-tab-btn"
+                            data-bs-toggle="tab" data-bs-target="#tabFade-pane-1" role="tab" aria-controls="tabFade-pane-1"
+                            aria-selected="true">
+                        Proposal Pack Content
+                    </button>
+                </li>
+
+                @if (!Convert.ToBoolean(ViewBag.SavedStatus) && !Convert.ToBoolean(ViewBag.NewStatus) && !Convert.ToBoolean(ViewBag.RejectedStatus) && Convert.ToBoolean(ViewBag.HasContent))
+                {
+                    <li class="nav-item" role="presentation" id="li-supporting-docs">
+                        <button type="button" id="tabFade-2" class="nav-link fw-bolder supporting-doc-tab-btn" data-bs-toggle="tab"
+                                data-bs-target="#tabFade-pane-2" role="tab" aria-controls="tabFade-pane-2" aria-selected="false">
+                            Supporting
+                            Documents
+                        </button>
+                    </li>
+                }
+            </ul>
+            <div class="tab-content justify-content-center">
+                <div id="tabFade-pane-1" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabFade-1">
+
+                    <div class=" mt-3">
+                        <div class="row">
+                            <div class="col-11 shadow-lg px-0 ms-2">
+                                <table class="table table-hover" id="tbl-of-proposal-content">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Create User</th>
+                                            <th>Create Date</th>
+                                            <th>Status</th>
+                                            <td>Action</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl-of-proposal-body">
+
+                                        @if (Model.Contents.Count > 0 && Model.Contents != null)
+                                        {
+                                            foreach (var item in Model.Contents)
+                                            {
+                                                <tr class="data-item" data-proposal-ref="@item.ProposalPackRefNbr"
+                                                    data-proposal-content-rowid="@item.ProposalPackContentRowId"
+                                                    data-content-type-code="@item.ContentTypeCode">
+                                                    <td>@item.ContentTypeDescription</td>
+                                                    <td>@item.CreateUser</td>
+                                                    <td>@item.CreateDate.ToString("dd MMM yyyy") </td>
+                                                    <td>@item.ContentStatus</td>
+                                                    <td>
+                                                        <a href="#" class="lnk-delete p-2">
+                                                            <span class="text-danger rds-pointer"><i class="bi bi-trash"></i></span>
+                                                        </a>
+                                                        <a asp-controller="CPC" asp-action="DataCapture" asp-route-refnbr="@item.ProposalPackRefNbr" asp-route-contenttypecode="@item.ContentTypeCode" class="lnk-config p-2">
+                                                            <span class="text-success rds-pointer"><i class="bi bi-gear"></i></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="5">There are not records to display.</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (!Convert.ToBoolean(ViewBag.SavedStatus) && !Convert.ToBoolean(ViewBag.NewStatus) && !Convert.ToBoolean(ViewBag.RejectedStatus) && Convert.ToBoolean(ViewBag.HasContent))
+                {
+                    <div id="tabFade-pane-2" class="tab-pane fade" role="tabpanel" aria-labelledby="tabFade-2">
+                        @*id="btn-add-doc"*@
+                        <div class="mt-4" id="add-doc-section">
+                            <a asp-controller="CPC" asp-action="FileCapture" asp-route-refnbr="@Model.ProposalPack.ReferenceNumber" asp-route-contenttype="@Model.ProposalPack.ProposalPackType" class="btn py-1 btn-outline-primary">
+                                <span><i class="bi bi-plus-square-fill"></i> &nbsp; Add Supporting Document</span>
+                            </a>
+                        </div>
+
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col-11 shadow-lg px-0 ms-2">
+                                    <table class="table table-hover" id="tbl-of-supporting-docs">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Last Updated</th>
+                                                <td>Actions</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="tbl-records-of-supporting-docs">
+
+                                            @if (Model.Docs != null)
+                                            {
+                                                @if (Model.Docs.Count > 0)
+                                                {
+                                                    foreach (var item in Model.Docs)
+                                                    {
+
+                                                        <tr class="data-item" data-file-ref="@item.ReferenceNbr" data-docname="@item.FileName"
+                                                            data-doctype="@item.DocType" data-contenttype="@Model.ProposalPack.ProposalPackType">
+                                                            <td>@item.FileName</td>
+                                                            <td>@item.LastUpdated.ToString("dd MMM yyyy") </td>
+                                                            <td>
+                                                                <a href="#" class="lnk-file-delete p-2">
+                                                                    <span class="text-danger rds-pointer"><i class="bi bi-trash"></i></span>
+                                                                </a>
+                                                                <a asp-controller="CPC" asp-action="FileCapture" asp-route-refnbr="@item.ReferenceNbr" asp-route-activefiletype="@item.DocType" asp-route-contenttype="@Model.ProposalPack.ProposalPackType" class="lnk-file-edit p-2">
+                                                                    <span class="text-success rds-pointer"><i class="bi bi-gear"></i></span>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td colspan="5">There are not records to display.</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+
+
+        @section Scripts{
+
+            <script src="~/js/proposalPackPropertyScript.bundle.js" asp-append-version="true"></script>
+
+            <script>
+
+            function registerRouteAction() {
+
+                document.title = 'CPC - Proposal Pack Property';
+
+                addScriptEventListeners();
+            }
+
+            document.addEventListener("DOMContentLoaded", registerRouteAction);
+
+            const refNbr = '@(ViewBag.RefNbr)';
+
+            function addScriptEventListeners() {
+                proposalPackPropertyScript.addScriptEventListeners(refNbr);
+            }
+
+            </script>
+
+            @if (!Convert.ToBoolean(ViewBag.SavedStatus) && !Convert.ToBoolean(ViewBag.NewStatus) && !Convert.ToBoolean(ViewBag.RejectedStatus) && Convert.ToBoolean(ViewBag.HasContent))
+            {
+                <script>function setupTabEventHandler() {
+                        proposalPackPropertyScript.setupTabEventHandler();
+                    }
+
+                    document.addEventListener("DOMContentLoaded", setupTabEventHandler);</script>
+            }
+
+
+            @if (TempData["SuccessAlert"] != null)
+            {
+                <script>
+                    swal('Confirmation', '@TempData["SuccessAlert"]', 'success');
+                </script>
+            }
+        }
+    }
+}
+
+
+@*Swal.fire(
+    'Success!',
+    '@TempData["SuccessAlert"]',
+    'Confirmation'
+    )*@
+
+
+@*function deleteFileBtnClick(e) {
+        proposalPackPropertyScript.deleteFileBtnClick(e, refNbr);
+    }
+
+    function configFileBtnClick(e) {
+        proposalPackPropertyScript.configFileBtnClick(e, refNbr);
+    }
+
+    function deleteContentBtnClick(e) {
+        proposalPackPropertyScript.deleteContentBtnClick(e, refNbr);
+    }
+
+    function configContentBtnClick(e) {
+        proposalPackPropertyScript.configContentBtnClick(e, refNbr);*@
+
+@*$('.supporting-doc-tab-btn').on('click', function () {
+
+        let target = $(this).data('bs-target');
+        let targetHost = $(this).attr('id') as string;
+
+        sessionStorage.setItem('selectedTab', target);
+        sessionStorage.setItem('selectedTabHost', targetHost);
+    });*@
+
+
+@*window.onload = function () {
+
+                    let navigationUrl = `/cpc/data-capture/new-proposal`;
+
+                    window.location.hash = "#" + navigationUrl;
+                }
+
+
+
+
+    <script>$(document).ready(function () {
+
+            let navigationUrl = `/cpc/data-capture/new-proposal`;
+
+            window.location.hash = "#" + navigationUrl;
+
+        });</script>*@
+
+@*const view = new match.route.view(hashArray.length > 0 ? hashArray[1] : undefined);
+    view.loadView();*@

@@ -1,9 +1,9 @@
-﻿using SAM.NUGET.Models;
+﻿using SAM.WEB.Models;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
-using SAM.NUGET.Services;
+using SAM.WEB.Services;
 
 namespace SAM.WEB.Services
 {

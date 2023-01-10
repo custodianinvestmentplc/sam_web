@@ -1,4 +1,4 @@
-﻿@model SAM.NUGET.ViewModels.IndexViewModel
+﻿@model SAM.WEB.ViewModels.IndexViewModel
 
 @{
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
@@ -13,7 +13,7 @@
     var loginMessage = configuration.GetValue<string>("AppConstants:loginMessage");
 
     var loginPadding = "";
-    if (Model.ExceptionType == "Access Denied") loginPadding = "p-3";
+    if (Convert.ToString(TempData["ExceptionType"]) == "Access Denied") loginPadding = "p-3";
 }
 
 
@@ -43,28 +43,9 @@
 
                     <div class="card @loginPadding">
 
-                        @if (!string.IsNullOrWhiteSpace(Model.ErrorTitle))
+                        @if (!string.IsNullOrWhiteSpace(Convert.ToString(TempData["ErrorTitle"])))
                         {
-                            <h5 class="card-title text-center mb-2" id="header"><i class="bi bi-exclamation-octagon-fill"></i> @Model.ExceptionType</h5>
-                            <h6 class="text-center text-danger">@Model.ErrorTitle</h6>
-                            <span class="text-center">@Model.ErrorDescription</span>
-
-                            @if (Model.ExceptionType == "Authentication Error")
-                            {
-                                <hr>
-
-                                <div class="card-body row justify-content-center p-0 px-5 pb-3">
-                                    <div class="col-auto d-lg-block p-0 m-md-1 align-self-center">
-                                        <img src="images/ms_logo.png" alt="Microsoft logo" class="img-thumbnail img-fluid" style="object-fit: none; max-width:40px;" />
-                                    </div>
-                                    <div class="col-auto col-md-9 col-xl-auto align-self-center">
-                                        <button asp-action="Login" asp-controller="Home" type="submit" class="shadow-lg btn btn-danger btn-md">
-                                            <p class="card-text">Try another <u><b>login</b></u> credential</p>
-                                        </button>
-                                    </div>
-                                </div>
-
-                            }
+                            <partial name="_ErrorView" />
                         }
                         else
                         {

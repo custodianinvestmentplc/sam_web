@@ -29,6 +29,10 @@
     <Content Remove="wwwroot\cpc_files\comedy-logo-illustration-theme-performances-stand-up-etc-178212650.jpg" />
     <None Remove="Swashbuckle.AspNetCore" />
     <None Remove="Services\" />
+    <None Remove="AutoMapper" />
+    <None Remove="AutoMapper.Extensions.Microsoft.DependencyInjection" />
+    <Content Remove="wwwroot\cpc_files\CLA09012023 12:33:134646_1.jpg" />
+    <Content Remove="wwwroot\cpc_files\CLA09012023 12:33:134646_2.jpg" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +43,8 @@
     <PackageReference Include="log4net" Version="2.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,9 +53,4 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SAM.NUGET\SAM.NUGET.csproj">
-      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

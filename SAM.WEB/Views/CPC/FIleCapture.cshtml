@@ -1,0 +1,135 @@
+﻿@model SAM.WEB.Domain.Dtos.CpcFileContextDto
+
+@{
+    Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+}
+
+@if (Convert.ToBoolean(ViewBag.CanViewPermission))
+{
+
+    var disabledClassVar = "disable-div";
+
+    if (Convert.ToBoolean(ViewBag.CanEditPermission))
+    {
+        disabledClassVar = "";
+    }
+
+
+    ViewBag.RefNbr = Model.ReferenceNbr;
+    ViewBag.DocType = Model.ActiveFileType;
+    ViewBag.ContentType = Model.ContentType;
+
+    <input id="ref-holder" value="@Model.ReferenceNbr" hidden />
+    <input id="doc-holder" value="@Model.ActiveFileType" hidden />
+    <input id="type-holder" value="@Model.ContentType" hidden />
+
+    <div>
+        <div class="d-flex align-items-center">
+            <div>
+                <span style="font-size:30px;">
+                    <a href="javascript:history.go(-1)">
+                        <i class="bi bi-arrow-left-circle-fill p-2"></i>
+                    </a>
+                </span>
+            </div>
+
+            <div>
+                <h4 class="text-success m-0">Upload Supporting Documents:</h4>
+            </div>
+        </div>
+        <hr />
+    </div>
+
+    <div id="disabled-section" class="@disabledClassVar">
+
+        <div class="" id="change-div">
+            <button id="btn-change" type="button" class="btn btn-info">
+                <i class="bi bi-pencil-square"></i>
+                Change Document
+            </button>
+            <hr />
+        </div>
+
+        <div class="shadow-lg p-3" >
+            <form method="POST" enctype="multipart/form-data" class="row g-3 mt-4" id="file-form">
+                <div class="">
+
+                    <div class="" id="input-selection-div">
+                        <div id="select-doctype-div" class="col-4 col-4 mb-3">
+                            <label for="cbo-docs" class="form-label fw-bolder">Select Document Type</label>
+                            <select class="form-select" id="cbo-docs" aria-label="select doc">
+
+                                @if (Model.Files != null)
+                                {
+                                    @if (Model.Files.Count > 0)
+                                    {
+                                        foreach (var item in Model.Files)
+                                        {
+                                            if (item.FileCode == Model.ActiveFileType)
+                                            {
+                                                <option selected value="@item.FileCode">
+                                                    @item.FileName
+                                                </option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.FileCode">
+                                                    @item.FileName
+                                                </option>
+                                            }
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div id="file-id-card-div" class="input-group mb-3">
+                            <label class="input-group-text bg-white" for="file-id">Upload (JPG)</label>
+                            <input name="id_file" type="file" class="form-control" id="file-id" accept=".jpg, .jpeg">
+                        </div>
+                    </div>
+
+                    <div class="preview" id="id-preview">
+                        <p>No files currently selected for upload</p>
+                    </div>
+                </div>
+
+                <div id="update-btn-div" class="col-12 text-right float-end align-self-end">
+                    <button id="btn-update" type="button" class="btn btn-danger">
+                        <i class="bi bi-check-square-fill"></i>
+                        Save Document
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    @section Scripts{
+
+        <script src="~/js/fileCaptureScript.bundle.js" asp-append-version="true"></script>
+
+        <script>
+
+            function registerRouteAction() {
+
+                document.title = 'CPC - File Capture Wizard';
+
+                addScriptEventListeners();
+            }
+
+            document.addEventListener("DOMContentLoaded", registerRouteAction);
+
+            const refNbr = '@(ViewBag.RefNbr)';
+            const doctype = '@(ViewBag.DocType)';
+            const contenttype = '@(ViewBag.ContentType)';
+
+            function addScriptEventListeners() {
+                fileCaptureScript.addScriptEventListeners(refNbr, doctype, contenttype);
+            }
+
+        </script>
+
+    }
+}
+

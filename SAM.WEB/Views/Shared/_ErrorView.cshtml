@@ -1,0 +1,25 @@
+﻿<div class="d-md-flex h-md-100 align-items-center">
+    <div class="col">
+        <h5 class="card-title text-center mb-2" id="header"><i class="bi bi-exclamation-octagon-fill"></i> @Convert.ToString(TempData["ExceptionType"])</h5>
+        <h6 class="text-center text-danger">@Convert.ToString(TempData["ErrorTitle"])</h6>
+        <div class="text-center">@Convert.ToString(TempData["ErrorDescription"])</div>
+
+        @if (Convert.ToString(TempData["ExceptionType"]) == "Authentication Error")
+        {
+            <hr>
+
+            <div class="card-body row justify-content-center p-0 px-5 pb-3">
+                <div class="col-auto d-lg-block p-0 m-md-1 align-self-center">
+                    <img src="images/ms_logo.png" alt="Microsoft logo" class="img-thumbnail img-fluid" style="object-fit: none; max-width:40px;" />
+                </div>
+                <div class="col-auto col-md-9 col-xl-auto align-self-center">
+                    <button asp-action="Login" asp-controller="Home" type="submit" class="shadow-lg btn btn-danger btn-md">
+                        <p class="card-text">Try another <u><b>login</b></u> credential</p>
+                    </button>
+                </div>
+            </div>
+
+        }
+    </div>
+</div>
+

@@ -1,7 +1,12 @@
-﻿@model SAM.NUGET.Models.ModuleInitOptions
+﻿@model SAM.WEB.Models.ModuleInitOptions
 
 @{
     Layout = "~/Views/Shared/_CPCHubLayout.cshtml";
+}
+
+@if (!string.IsNullOrWhiteSpace(Convert.ToString(TempData["ErrorTitle"])))
+{
+    <partial name="_ErrorView" />
 }
 
 

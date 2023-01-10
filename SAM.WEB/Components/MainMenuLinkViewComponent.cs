@@ -1,4 +1,4 @@
-﻿using SAM.NUGET.ViewModels;
+﻿using SAM.WEB.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 

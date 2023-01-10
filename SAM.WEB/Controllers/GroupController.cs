@@ -1,14 +1,14 @@
-﻿using SAM.NUGET.Services;
+﻿using SAM.WEB.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using SAM.WEB.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.NUGET.Resources;
+using SAM.WEB.Resources;
 
 namespace SAM.API.Controllers
 {

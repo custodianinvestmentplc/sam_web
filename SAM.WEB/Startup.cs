@@ -1,6 +1,6 @@
-using SAM.NUGET.Domain;
-using SAM.NUGET.Models;
-using SAM.NUGET.Services;
+using SAM.WEB.Domain;
+using SAM.WEB.Models;
+using SAM.WEB.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
@@ -11,7 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Net.Http.Headers;
-using SAM.WEB.Services;
+using SAM.WEB.Repo;
+using AutoMapper;
 
 namespace SAM.WEB
 {
@@ -62,6 +63,15 @@ namespace SAM.WEB
             services.AddSingleton(_dbConfig);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            //services.AddHttpContextAccessor();
+
+            services.AddSession(Options =>
+            {
+                Options.IdleTimeout = TimeSpan.FromMinutes(10);
+                Options.Cookie.HttpOnly = true;
+                Options.Cookie.IsEssential = true;
+            });
+
             services.AddScoped<IUserServices>(s => new UserServiceFacade(_dbConfig.cpc));
             services.AddScoped<IAgentServices>(s => new AgentServiceFacade(_dbConfig.cpc));
             services.AddScoped<IReportService>(s => new ReportServiceFacade(_dbConfig.cpc));
@@ -69,6 +79,11 @@ namespace SAM.WEB
             services.AddScoped<ICPCHubServices>(s => new CPCHubServiceFacade(_dbConfig.cpc));
             services.AddScoped<ICtsService>(s => new CtsFacade(_dbConfig.cpc));
             services.AddScoped<IAuthProvider, AuthProvider>();
+
+            //services.AddAutoMapper(typeof(Startup));
+            //services.AddAutoMapper(typeof(Program));
+            services.AddAutoMapper(typeof(MappingProfiles));
+
             //services.AddScoped<ActivityLoggerActionFilter>();
 
             services.AddControllersWithViews();
@@ -100,7 +115,9 @@ namespace SAM.WEB
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            
+
+            app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

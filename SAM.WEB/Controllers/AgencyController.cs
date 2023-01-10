@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Reflection;
-using SAM.NUGET.Models;
-using SAM.NUGET.Services;
-using SAM.NUGET.ViewModels;
+using SAM.WEB.Models;
+using SAM.WEB.Services;
+using SAM.WEB.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.NUGET.Domain.Dtos;
+using SAM.WEB.Domain.Dtos;
 using SAM.WEB.Services;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -89,7 +89,7 @@ namespace SAM.WEB.Controllers
 
         public async Task<IActionResult> GetUserView()
         {
-            var indexVM = new IndexViewModel();
+            //var indexVM = new IndexViewModel();
 
             ViewBag.ShowLayout = true;
 
@@ -119,20 +119,20 @@ namespace SAM.WEB.Controllers
                     return View();
                 }
 
-                indexVM.ErrorTitle = "Unable to retreive user email";
-                indexVM.ExceptionType = "Access Denied";
+                ViewBag.ErrorTitle = "Unable to retreive user email";
+                ViewBag.ExceptionType = "Access Denied";
 
-                return RedirectToAction("Index", "Home", indexVM);
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                indexVM.ErrorTitle = "You do not belong to any of the designated permission groups";
-                indexVM.ExceptionType = "Access Denied";
-                indexVM.ErrorDescription = ex.Message;
+                ViewBag.ErrorTitle = "You do not belong to any of the designated permission groups";
+                ViewBag.ExceptionType = "Access Denied";
+                ViewBag.ErrorDescription = ex.Message;
 
                 log.Error(DateTime.Now.ToString(), ex);
 
-                return RedirectToAction("Index", "Home", indexVM);
+                return RedirectToAction("Index", "Home");
             }
         }
     }

@@ -3,7 +3,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.success(@TempData["Success"]);
+        toastr.success("@TempData["Success"]");
     </script>
 }
 
@@ -12,7 +12,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.warning(@TempData["Warning"]);
+        toastr.warning("@TempData["Warning"]");
     </script>
 }
 
@@ -21,6 +21,23 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.error(@TempData["Error"]);
+        toastr.error("@TempData["Error"]");
     </script>
 }
+<!--if (TempData["SuccessAlert"] != null)
+{
+    <script type="text/javascript">
+
+        Swal.fire(
+            'Success!',
+            'TempData["SuccessAlert"]',
+            'Confirmation'
+        )-->
+
+        @*swal('Confirmation', "@TempData["SuccessAlert"]", 'success')
+                 .then((value) => {
+                     //window.location.href = `${base_url}/CPC/ProposalPackProperty?refnbr=${newId}`
+                     ;
+                 });*@
+    <!--</script>
+}-->
