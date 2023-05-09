@@ -9,11 +9,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using SAM.WEB.Resources;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GroupController : ControllerBase
     {
         private readonly IGroupSynergyServices _groupService;

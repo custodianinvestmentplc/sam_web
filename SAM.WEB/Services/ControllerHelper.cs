@@ -19,6 +19,7 @@ using SAM.WEB.ViewModels;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
+using SAM.WEB.Domain.Options;
 
 namespace SAM.WEB.Services
 {
@@ -84,7 +85,8 @@ namespace SAM.WEB.Services
             System.IO.File.WriteAllBytes(filename, file);
         }
 
-        public static async Task<List<string>> Authorization(string form, string userEmail, IConfiguration _configuration, IHttpClientFactory _httpClientFactory)
+        //public static async Task<List<string>> Authorization(string form, string userEmail, IConfiguration _configuration, IHttpClientFactory _httpClientFactory)
+        public static async Task<List<PermissionOptions>> Authorization(string userEmail, IConfiguration _configuration, IHttpClientFactory _httpClientFactory)
         {
             var indexVM = new IndexViewModel();
 
@@ -102,10 +104,57 @@ namespace SAM.WEB.Services
 
                 //return await DataServices<List<string>>.GetPayload(uri, _httpClientFactory);
 
-                return new List<string>
+                return new List<PermissionOptions>
                 {
-                    "can_view",
-                    "can_edit"
+                    new PermissionOptions
+                    {
+                        Form = "CreateProposalPack",
+                        Permission = "can_view",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "CreateProposalPack",
+                        Permission = "can_edit",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "DraftProposalPacks",
+                        Permission = "can_view",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "DraftProposalPacks",
+                        Permission = "can_edit",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "ProposalPackProperty",
+                        Permission = "can_view",
+                        UserEmail = userEmail
+                    },
+                     new PermissionOptions
+                    {
+                        Form = "ProposalPackProperty",
+                        Permission = "can_edit",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "DataCapture",
+                        Permission = "can_view",
+                        UserEmail = userEmail
+                    },
+                    new PermissionOptions
+                    {
+                        Form = "DataCapture",
+                        Permission = "can_edit",
+                        UserEmail = userEmail
+                    },
+
                 };
             }
             catch { throw; }

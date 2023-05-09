@@ -8,14 +8,15 @@ using SAM.WEB.Domain.Dtos;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
-using SAM.WEB.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AgentsController : ControllerBase
     {
         private readonly IAgentServices _agentServices;

@@ -13,6 +13,9 @@ using System;
 using System.Net.Http.Headers;
 using SAM.WEB.Repo;
 using AutoMapper;
+using SAM.WEB.MiddleWares;
+using System.Configuration;
+using SAM.WEB.Domain.Dtos;
 
 namespace SAM.WEB
 {
@@ -23,6 +26,7 @@ namespace SAM.WEB
 
         private readonly string _baseUrl;
         private readonly MediaTypeWithQualityHeaderValue _contentType;
+        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration)
         {
@@ -39,6 +43,7 @@ namespace SAM.WEB
             _dbConfig = db;
             _baseUrl = baseUrl;
             _contentType = contentType;
+            this.configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -56,14 +61,12 @@ namespace SAM.WEB
             services.AddHttpClient("client", httpClient =>
             {
                 httpClient.BaseAddress = new Uri(_baseUrl);
-                httpClient.DefaultRequestHeaders.Accept.Add(_contentType); 
+                httpClient.DefaultRequestHeaders.Accept.Add(_contentType);
             });
 
             services.AddSingleton(_loginConfig);
             services.AddSingleton(_dbConfig);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            //services.AddHttpContextAccessor();
 
             services.AddSession(Options =>
             {
@@ -79,27 +82,16 @@ namespace SAM.WEB
             services.AddScoped<ICPCHubServices>(s => new CPCHubServiceFacade(_dbConfig.cpc));
             services.AddScoped<ICtsService>(s => new CtsFacade(_dbConfig.cpc));
             services.AddScoped<IAuthProvider, AuthProvider>();
-
-            //services.AddAutoMapper(typeof(Startup));
-            //services.AddAutoMapper(typeof(Program));
             services.AddAutoMapper(typeof(MappingProfiles));
 
-            //services.AddScoped<ActivityLoggerActionFilter>();
-
             services.AddControllersWithViews();
+
+            services.Configure<UserRegisterDto>(configuration.GetSection("userregister"));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
@@ -111,12 +103,13 @@ namespace SAM.WEB
             };
 
             app.UseCookiePolicy(cookiePolicyOptions);
-            
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseSession();
+
+            //app.UseMiddleware<UserAuthMiddleware>();
+            app.UseMiddleware<UserPermissionsMiddleWare>();
 
             app.UseEndpoints(endpoints =>
             {
@@ -127,3 +120,17 @@ namespace SAM.WEB
         }
     }
 }
+
+//services.AddHttpContextAccessor();
+//services.AddScoped<ActivityLoggerActionFilter>();
+
+//app.GetAppUserFromHttpContext();
+
+//if (env.IsDevelopment())
+//{
+//    app.UseDeveloperExceptionPage();
+//}
+//else
+//{
+//    app.UseExceptionHandler("/Home/Error");
+//}

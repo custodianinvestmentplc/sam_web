@@ -1,4 +1,3 @@
-using SAM.API;
 using SAM.WEB.Domain.Dtos;
 using SAM.WEB.Domain.Options;
 using SAM.WEB.Models;
@@ -22,7 +21,6 @@ using System.Reflection.Metadata;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
-using SAM.NUGET;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Net.Http;
 using Microsoft.Extensions.Configuration;
@@ -30,11 +28,13 @@ using System.Security.Cryptography;
 using SAM.WEB;
 using SAM.WEB.Repo;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [Route("api/proposal-pack")]
     [ApiController]
+    [Authorize]
     public class ProposalPackController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -1309,7 +1309,7 @@ namespace SAM.API.Controllers
                 payload.MeansOfIdentification = payload.MeansOfIdentification ?? "";
                 payload.MeansOfidentificationOthers = payload.MeansOfidentificationOthers ?? "";
                 payload.IdCountryOfIssue = payload.IdCountryOfIssue ?? "";
-                payload.IdCountryOfIssueOthers = payload.IdCountryOfIssueOthers ?? "";
+                payload.IdCountryOfIssue = payload.IdCountryOfIssueOthers ?? "";
                 payload.ResidentPermitNbr = payload.ResidentPermitNbr ?? "";
                 //var res = await DataServices<string>.PostPayload<ProposalFormTradIdentification>(payload, url, _httpClientFactory);
 

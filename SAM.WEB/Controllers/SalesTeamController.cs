@@ -4,16 +4,17 @@ using System;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using SAM.WEB.Domain.Dtos;
-using SAM.WEB.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using SAM.WEB.Resources;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SalesTeamController : ControllerBase
     {
         private readonly IAgentServices _agentServices;

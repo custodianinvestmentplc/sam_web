@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SAM.WEB.Services;
 
-namespace SAM.NUGET
+namespace SAM.WEB
 {
     public static class WebConstants
     {
@@ -30,6 +30,6 @@ namespace SAM.NUGET
         public const string AddMedicalHistoryOption = "AddMedicalHistoryOption";
         public const string AddMiscellaneousOption = "AddMiscellaneousOption";
         public const string AddOtherMedicalInfo = "AddOtherMedicalInfo";
-        //public const string SubmitProposalPackContentForm = "SubmitProposalPackContentForm";
+
     }
 } 

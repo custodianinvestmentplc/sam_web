@@ -16,51 +16,47 @@ using System.Threading.Tasks;
 using System.Configuration;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.API.Controllers;
+using SAM.WEB.Controllers;
 using Microsoft.VisualBasic;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 using System.Reflection.Metadata;
 using SAM.WEB.Repo;
 using SAM.WEB;
-using SAM.NUGET;
 using System.Linq;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SAM.WEB.Controllers
 {
+    [Authorize]
     public class CPCController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ICPCHubServices _cpcServices;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly LoginConfig _config;
-        private readonly IUserServices _userServices;
-        private readonly IAuthProvider _authProvider;
 
-        public CPCController(IConfiguration configuration, IHttpClientFactory httpClientFactory, ICPCHubServices cpcHubServices, LoginConfig config, IUserServices userServices, IAuthProvider authprovider)
+        public CPCController(IConfiguration configuration, IHttpClientFactory httpClientFactory, LoginConfig config)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
-            _cpcServices = cpcHubServices;
             _config = config;
-            _userServices = userServices;
-            _authProvider = authprovider;
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateProposalPack()
+        //[ServiceFilter(typeof(MyNewCustomActionFilter))]
+        public IActionResult CreateProposalPack()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var newProposalPack = new NewProposalPack();
 
-            if (Convert.ToBoolean(ViewBag.CanViewPermission))
+            try
             {
-                try
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
                 {
                     //var url = _configuration.GetValue<string>("AppSettings:GetAllBranches");
 
@@ -86,16 +82,23 @@ namespace SAM.WEB.Controllers
                     },
                 };
 
-                    if (branches.Count < 1 || branches == null) TempData["Warning"] = "Fetch Branches \n No record was found";
+                    if (branches.Count < 1 || branches == null) TempData["Warning"] = "Fetch Branches \r\n No record was found";
 
                     else newProposalPack.Branches = branches;
                 }
-                catch (Exception ex)
-                {
-                    log.Error(DateTime.Now.ToString(), ex);
+                else throw new Exception("You do not have permission to view the New Proposal Pack form.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = "Fetch Branches \n Unable to fetch Branches from back end";
-                }
+                TempData["Warning"] = "Unable to open New Proposal Pack Form";
+
+                TempData["ErrorTitle"] = "New Proposal Pack Form Error \r\n Unable to open New Proposal Pack Form";
+                TempData["ExceptionType"] = "New Proposal Pack Form Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
             }
 
             return View(newProposalPack);
@@ -106,7 +109,7 @@ namespace SAM.WEB.Controllers
         {
             try
             {
-                var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                var userEmail = HttpContext.Session.Get<string>("userEmail");
 
                 //var packOptions = new CreateProposalPackOptions
                 //{
@@ -168,7 +171,7 @@ namespace SAM.WEB.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Submit Proposal Pack \n Unable to Submit Proposal Pack";
+                TempData["Error"] = "Submit Proposal Pack \r\n Unable to Submit Proposal Pack";
 
                 TempData["ErrorTitle"] = "Unable to Submit Proposal Pack";
                 TempData["ExceptionType"] = "Submit Proposal Pack Error";
@@ -182,7 +185,7 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ProposalPackProperty(string? refnbr)
+        public IActionResult ProposalPackProperty(string? refnbr)
         {
             if (string.IsNullOrWhiteSpace(refnbr)) refnbr = HttpContext.Session.Get<string>("RefNbr");
 
@@ -196,7 +199,7 @@ namespace SAM.WEB.Controllers
             {
                 var endpointName = RouteData.Values["action"].ToString();
 
-                await GetUserViewAsync(endpointName);
+                ConfigureView(endpointName);
 
                 var proposalPackProperty = new CPCProposalPackProperty();
 
@@ -209,7 +212,7 @@ namespace SAM.WEB.Controllers
 
                     try
                     {
-                        var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                        var useremail = HttpContext.Session.Get<string>("userEmail");
 
                         //var urlProposalPack = _configuration.GetValue<string>("AppSettings:GetProposalPack");
                         //var uriProposalPack = QueryHelpers.AddQueryString(urlProposalPack, query);
@@ -251,7 +254,7 @@ namespace SAM.WEB.Controllers
 
                                     proposalPackProperty.Docs = Repository<SupportingDocFile>.GetAll(WebConstants.ProposalPackFiles, u => u.ReferenceNbr == refnbr);
 
-                                    if (proposalPackProperty.Docs.Count <= 0 || proposalPackProperty.Docs == null) TempData["Warning"] = "Fetch Proposal Pack Supporting Documents \n No Supporting Document was found for Proposal Pack";
+                                    if (proposalPackProperty.Docs.Count <= 0 || proposalPackProperty.Docs == null) TempData["Warning"] = "Fetch Proposal Pack Supporting Documents \r\n No Supporting Document was found for Proposal Pack";
                                 }
                             }
 
@@ -259,18 +262,18 @@ namespace SAM.WEB.Controllers
                             {
                                 ViewBag.HasContent = false;
 
-                                TempData["Warning"] = "Fetch Proposal Pack Contents \n No content was found for Proposal Pack";
+                                TempData["Warning"] = "Fetch Proposal Pack Contents \r\n No content was found for Proposal Pack";
                             }
                         }
 
-                        else TempData["Warning"] = "Fetch Proposal Pack \n Proposal Pack does not exist in Database";
+                        else throw new Exception("Fetch Proposal Pack \r\n Proposal Pack does not exist in Database");
 
                     }
                     catch (Exception ex)
                     {
                         log.Error(DateTime.Now.ToString(), ex);
 
-                        TempData["Warning"] = "Fetch Proposal Pack Properties \n Unable to fetch Proposal Pack Properties/Files from Database";
+                        TempData["Warning"] = "Fetch Proposal Pack Properties \r\n Unable to fetch Proposal Pack Properties/Files from Database";
 
                         //TempData["Error"] = ex.ToString();
 
@@ -300,11 +303,11 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> DataCapture(string refnbr, string contenttypecode)
+        public IActionResult DataCapture(string refnbr, string contenttypecode)
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var data = new CpcDataCaptureDto
             {
@@ -312,13 +315,13 @@ namespace SAM.WEB.Controllers
                 ReferenceNbr = refnbr,
             };
 
-            if (Convert.ToBoolean(ViewBag.CanViewPermission))
+            try
             {
-                try
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
                 {
                     ViewBag.IsDisbled = false;
 
-                    var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     var contents = Repository<ProposalPackContentDto>.GetAll(WebConstants.ProposalPackContent, u => u.ProposalPackRefNbr == refnbr);
 
@@ -377,36 +380,42 @@ namespace SAM.WEB.Controllers
                     },
                     };
 
-                    if (states == null || states.Count < 1) TempData["Warning"] = "Fetch States \n No state record was found";
+                    if (states == null || states.Count < 1) TempData["Warning"] = "Fetch States \r\n No state record was found";
                     else
                     {
                         data.States = states;
                     }
 
-                    if (prods == null || prods.Count < 1) TempData["Warning"] = "Fetch Products \n No product record was found";
+                    if (prods == null || prods.Count < 1) TempData["Warning"] = "Fetch Products \r\n No product record was found";
                     else
                     {
                         data.Products = prods;
                     }
-
                 }
-                catch (Exception ex)
-                {
-                    log.Error(DateTime.Now.ToString(), ex);
+                else throw new Exception("You do not have permission to view Proposal Pack Content Forms.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = "Fetch Products & States \n Unable to fetch products and states from Database";
-                }
+                TempData["Warning"] = "Proposal Pack Content Forms Error \r\n Unable to open Proposal Pack Content Forms";
+
+                TempData["ErrorTitle"] = "Unable to open Proposal Pack Content Forms";
+                TempData["ExceptionType"] = "Proposal Pack Content Forms Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
             }
 
             return View(data);
         }
 
         [HttpGet]
-        public async Task<IActionResult> FileCapture(string refnbr, string contenttype, string activefiletype)
+        public IActionResult FileCapture(string refnbr, string contenttype, string activefiletype)
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var file = new CpcFileContextDto
             {
@@ -415,11 +424,11 @@ namespace SAM.WEB.Controllers
                 ContentType = contenttype,
             };
 
-            if (Convert.ToBoolean(ViewBag.CanViewPermission))
+            try
             {
-                try
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
                 {
-                    var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetAllCpcFiles");
 
@@ -443,98 +452,120 @@ namespace SAM.WEB.Controllers
                         },
                     };
 
-                    if (files == null || files.Count < 1) TempData["Warning"] = "Fetch File \n No record was found";
+                    if (files == null || files.Count < 1) TempData["Warning"] = "Fetch File \r\n No record was found";
                     else
                     {
                         file.Files = files;
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.Error(DateTime.Now.ToString(), ex);
+                else throw new Exception("You do not have permission to view Proposal Pack Supporting Document Form.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = "Fetch Proposal Pack Supporting Documents \n Unable to fetch Proposal Pack Supporting Documents from Database";
-                }
+                TempData["Warning"] = "Proposal Pack Supporting Document Form Error \r\n Unable to open Proposal Pack Supporting Document";
+
+                TempData["ErrorTitle"] = "Unable to open Proposal Pack Supporting Document";
+                TempData["ExceptionType"] = "Proposal Pack Supporting Document Form Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
             }
 
             return View(file);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDraftProposalPacks()
+        public IActionResult DraftProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
-            var daftsProposalPacks = new List<CpcProposalPack>();
+            var draftsProposalPacks = new List<CpcProposalPack>();
 
-            if (Convert.ToBoolean(ViewBag.CanViewPermission))
+            try
             {
-                try
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
                 {
-                    var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetDraftProposalPack");
-                    //daftsProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(url, _httpClientFactory);
+                    //draftsProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(url, _httpClientFactory);
 
-                    daftsProposalPacks = Repository<CpcProposalPack>.GetAll(WebConstants.ProposalPack, u => u.PpcStatus == "NEW");
+                    draftsProposalPacks = Repository<CpcProposalPack>.GetAll(WebConstants.ProposalPack, u => u.PpcStatus == "NEW");
 
-                    daftsProposalPacks = daftsProposalPacks.OrderByDescending(u => u.CreateDate).ToList();
+                    draftsProposalPacks = draftsProposalPacks.OrderByDescending(u => u.CreateDate).ToList();
 
-                    if (daftsProposalPacks.Count < 1 || daftsProposalPacks == null) TempData["Warning"] = "Fetch Daft Proposal Packs \n No record was found";
+                    if (draftsProposalPacks.Count < 1 || draftsProposalPacks == null) TempData["Warning"] = "Fetch Draft Proposal Packs \r\n No record was found";
                 }
-                catch (Exception ex)
-                {
-                    log.Error(DateTime.Now.ToString(), ex);
+                else throw new Exception("You do not have permission to view Draft Proposal Packs Page.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = "Fetch Daft Proposal Packs \n No record was found";
-                }
+                TempData["Warning"] = "Draft Proposal Packs Page Error \r\n Unable to open Draft Proposal Packs page";
+
+                TempData["ErrorTitle"] = "Unable to open Draft Proposal Packs page";
+                TempData["ExceptionType"] = "Draft Proposal Packs Page Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
             }
 
-            return View(daftsProposalPacks.AsReadOnly());
+            return View(draftsProposalPacks.AsReadOnly());
         }
 
         [HttpGet]
-        public async Task<IActionResult> SubmittedProposalPacks()
+        public IActionResult SubmittedProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var submittedProposalPacks = new List<CpcProposalPack>();
 
-            if (Convert.ToBoolean(ViewBag.CanViewPermission))
+
+            try
             {
-                try
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
                 {
                     //var url = _configuration.GetValue<string>("AppSettings:GetSubmittedProposalPack");
                     //submittedProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(url, _httpClientFactory);
 
-                    var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     submittedProposalPacks = Repository<CpcProposalPack>.GetAll(WebConstants.ProposalPack, u => u.PpcStatus == "SUBMITTED");
                     submittedProposalPacks = submittedProposalPacks.OrderByDescending(u => u.CreateDate).ToList();
 
-                    if (submittedProposalPacks.Count < 1 || submittedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    if (submittedProposalPacks.Count < 1 || submittedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
-                catch (Exception ex)
-                {
-                    log.Error(DateTime.Now.ToString(), ex);
+                else throw new Exception("You do not have permission to view Submitted Proposal Packs Page.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
-                }
+                TempData["Warning"] = "Submitted Proposal Packs Page Error \r\n Unable to open Submitted Proposal Packs page";
+
+                TempData["ErrorTitle"] = "Unable to open Submitted Proposal Packs page";
+                TempData["ExceptionType"] = "Submitted Proposal Packs Page Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
             }
 
             return View(submittedProposalPacks.AsReadOnly());
         }
 
         [HttpGet]
-        public async Task<IActionResult> InboundProposalPacks()
+        public IActionResult InboundProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var inboundProposalPacks = new List<CpcProposalPack>();
 
@@ -542,7 +573,7 @@ namespace SAM.WEB.Controllers
             {
                 try
                 {
-                    var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetInboundProposalPacks");
 
@@ -555,13 +586,13 @@ namespace SAM.WEB.Controllers
 
                     //inboundProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(uri, _httpClientFactory);
 
-                    if (inboundProposalPacks.Count < 1 || inboundProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    if (inboundProposalPacks.Count < 1 || inboundProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
                 catch (Exception ex)
                 {
                     log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
             }
 
@@ -569,11 +600,53 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> WIPProposalPacks()
+        public IActionResult RejectedProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
+
+            var rejectedProposalPacks = new List<CpcProposalPack>();
+
+            try
+            {
+                if (Convert.ToBoolean(ViewBag.CanViewPermission))
+                {
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
+
+                    //var url = _configuration.GetValue<string>("AppSettings:GetRejectedProposalPack");
+                    //RejectedProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(url, _httpClientFactory);
+
+                    rejectedProposalPacks = Repository<CpcProposalPack>.GetAll(WebConstants.ProposalPack, u => u.PpcStatus == "REJECTED");
+
+                    rejectedProposalPacks = rejectedProposalPacks.OrderByDescending(u => u.CreateDate).ToList();
+
+                    if (rejectedProposalPacks.Count < 1 || rejectedProposalPacks == null) TempData["Warning"] = "Fetch Rejected Proposal Packs \r\n No record was found";
+                }
+                else throw new Exception("You do not have permission to view Rejected Proposal Packs Page.");
+            }
+            catch (Exception ex)
+            {
+                log.Error(DateTime.Now.ToString(), ex);
+
+                TempData["Warning"] = "Rejected Proposal Packs Page Error \r\n Unable to open Rejected Proposal Packs page";
+
+                TempData["ErrorTitle"] = "Unable to open Rejected Proposal Packs page";
+                TempData["ExceptionType"] = "Rejected Proposal Packs Page Error";
+                TempData["ErrorDescription"] = ex.Message;
+
+                return RedirectToAction("CPCHub", "Modules");
+            }
+
+            return View(rejectedProposalPacks.AsReadOnly());
+        }
+
+        [HttpGet]
+        public IActionResult WIPProposalPacks()
+        {
+            var endpointName = RouteData.Values["action"].ToString();
+
+            ConfigureView(endpointName);
 
             var wipProposalPacks = new List<CpcProposalPack>();
 
@@ -582,7 +655,7 @@ namespace SAM.WEB.Controllers
             {
                 try
                 {
-                    var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetWIPProposalPacks");
 
@@ -595,13 +668,13 @@ namespace SAM.WEB.Controllers
 
                     //wipProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(uri, _httpClientFactory);
 
-                    if (wipProposalPacks.Count < 1 || wipProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    if (wipProposalPacks.Count < 1 || wipProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
                 catch (Exception ex)
                 {
                     log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
             }
 
@@ -609,11 +682,11 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AcceptedProposalPacks()
+        public IActionResult AcceptedProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var acceptedProposalPacks = new List<CpcProposalPack>();
 
@@ -622,7 +695,7 @@ namespace SAM.WEB.Controllers
             {
                 try
                 {
-                    var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetAcceptedProposalPacks");
 
@@ -635,13 +708,13 @@ namespace SAM.WEB.Controllers
 
                     //acceptedProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(uri, _httpClientFactory);
 
-                    if (acceptedProposalPacks.Count < 1 || acceptedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    if (acceptedProposalPacks.Count < 1 || acceptedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
                 catch (Exception ex)
                 {
                     log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
             }
 
@@ -649,11 +722,11 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ApprovedProposalPacks()
+        public IActionResult ApprovedProposalPacks()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            await GetUserViewAsync(endpointName);
+            ConfigureView(endpointName);
 
             var approvedProposalPacks = new List<CpcProposalPack>();
 
@@ -662,7 +735,7 @@ namespace SAM.WEB.Controllers
             {
                 try
                 {
-                    //var userEmail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                    //var useremail = HttpContext.Session.Get<string>("userEmail");
 
                     //var url = _configuration.GetValue<string>("AppSettings:GetApprovedProposalPacks");
 
@@ -675,13 +748,13 @@ namespace SAM.WEB.Controllers
 
                     //approvedProposalPacks = await DataServices<List<CpcProposalPack>>.GetPayload(uri, _httpClientFactory);
 
-                    if (approvedProposalPacks.Count < 1 || approvedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    if (approvedProposalPacks.Count < 1 || approvedProposalPacks == null) TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
                 catch (Exception ex)
                 {
                     log.Error(DateTime.Now.ToString(), ex);
 
-                    TempData["Warning"] = $"Fetch {endpointName} \n No record was found";
+                    TempData["Warning"] = $"Fetch {endpointName} \r\n No record was found";
                 }
             }
 
@@ -689,78 +762,78 @@ namespace SAM.WEB.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> UsersProfile()
+        public IActionResult UsersProfile()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> RolesSetting()
+        public IActionResult RolesSetting()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> Permissions()
+        public IActionResult Permissions()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> Forms()
+        public IActionResult Forms()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> Branches()
+        public IActionResult Branches()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> CPCTypes()
+        public IActionResult CPCTypes()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> CPCProducts()
+        public IActionResult CPCProducts()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> States()
+        public IActionResult States()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
         [HttpGet]
-        public Task<IActionResult> SupportingDocuments()
+        public IActionResult SupportingDocuments()
         {
             var endpointName = RouteData.Values["action"].ToString();
 
-            return GetUserViewAsync(endpointName);
+            return ConfigureView(endpointName);
         }
 
-        public async Task<IActionResult> GetUserViewAsync(string formName)
+        public IActionResult ConfigureView(string formName)
         {
             //var indexVM = new IndexViewModel();
 
@@ -768,56 +841,34 @@ namespace SAM.WEB.Controllers
 
             try
             {
-                var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                var userEmail = HttpContext.Session.Get<string>("userEmail");
 
-
-                if (!string.IsNullOrEmpty(useremail))
+                if (!string.IsNullOrEmpty(userEmail))
                 {
-                    //var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
+                    var user = HttpContext.Session.Get<UserRegisterDto>("UserRegisterDto");
 
-                    //var query = new Dictionary<string, string>()
-                    //{
-                    //    ["useremail"] = useremail
-                    //};
-
-                    //var uri = QueryHelpers.AddQueryString(url, query);
-
-                    //var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
-
-                    var user = new UserRegisterDto
+                    if (user != null)
                     {
-                        UserDisplayName = "Emmanuel",
-                        UserRole = "Agent",
-                        BranchName = "BranchName1",
-                        AddedByEmail = useremail,
-                        BranchCode = "1",
-                        CreateDate = new DateTime(2022, 01, 06),
-                        JobDescription = "Agent",
-                        UserEmail = useremail,
-                        TableRowId = 1,
-                        UserRoleId = "1"
-                    };
+                        var _permissions = HttpContext.Session.Get<List<PermissionOptions>>("UserPermissions");
 
-                    var _permissions = await ControllerHelper.Authorization(formName, useremail, _configuration, _httpClientFactory);
+                        ViewBag.CanViewPermission = _permissions.Exists(permission => permission.UserEmail.ToLower() == userEmail.ToLower() && permission.Form.ToLower() == formName.ToLower() && permission.Permission.ToLower() == "can_view");
 
-                    ViewBag.CanViewPermission = _permissions.Exists(permission => permission.ToLower() == "can_view");
+                        if (!Convert.ToBoolean(ViewBag.CanViewPermission)) TempData["Warning"] = $"View {formName} Form \r\n You do not have permission to view {formName} Form";
 
-                    if (!Convert.ToBoolean(ViewBag.CanViewPermission)) TempData["Warning"] = $"View {formName} Form \n You do not have permission to view {formName} Form";
+                        else
+                        {
+                            ViewBag.CanEditPermission = _permissions.Exists(permission => permission.UserEmail.ToLower() == userEmail.ToLower() && permission.Form.ToLower() == formName.ToLower() && permission.Permission.ToLower() == "can_edit");
 
-                    else
-                    {
-                        ViewBag.CanEditPermission = _permissions.Exists(permission => permission.ToLower() == "can_edit");
+                            if (!Convert.ToBoolean(ViewBag.CanEditPermission)) TempData["Warning"] = $"Edit {formName} Form \r\n You do not have permission to Edit {formName}";
+                        }
 
-                        if (!Convert.ToBoolean(ViewBag.CanEditPermission)) TempData["Warning"] = $"Edit {formName} Form \n You do not have permission to Edit {formName}";
+                        ViewBag.Module = user.UserRole.ToLower();
+
+                        ViewBag.Username = user.UserDisplayName;
+
+                        return Ok();
                     }
-
-                    ViewBag.Module = user.UserRole.ToLower();
-
-                    ViewBag.Username = user.UserDisplayName;
-
-                    log.Info($"{DateTime.Now.ToString()} - Logged in the User {useremail}");
-
-                    return Ok();
+                    else throw new Exception("No User found.");
                 }
                 else
                 {
@@ -840,6 +891,7 @@ namespace SAM.WEB.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
 
     }
 }
@@ -867,6 +919,6 @@ namespace SAM.WEB.Controllers
 //        ReferenceNumber = "testRef"
 //    };
 
-//    daftsProposalPacks.Add(cp);
+//    draftsProposalPacks.Add(cp);
 //}
 //HttpContext.Session.Set("StatusIndex", "NEW");

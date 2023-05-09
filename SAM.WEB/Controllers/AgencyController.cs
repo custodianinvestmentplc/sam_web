@@ -6,14 +6,15 @@ using SAM.WEB.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using SAM.WEB.Domain.Dtos;
-using SAM.WEB.Services;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SAM.WEB.Controllers
 {
+    [Authorize]
     public class AgencyController : Controller
     {
         private readonly IConfiguration _configuration;
@@ -95,20 +96,15 @@ namespace SAM.WEB.Controllers
 
             try
             {
-                var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                //var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+
+                var useremail = HttpContext.Session.Get<string>("userEmail");
 
                 var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
 
                 if (!string.IsNullOrEmpty(useremail))
                 {
-                    var query = new Dictionary<string, string>()
-                    {
-                        ["useremail"] = useremail
-                    };
-
-                    var uri = QueryHelpers.AddQueryString(url, query);
-
-                    var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
+                    var user = HttpContext.Session.Get<UserRegisterDto>("UserRegisterDto");
 
                     ViewBag.Module = user.UserRole.ToLower();
 

@@ -9,11 +9,13 @@ using SAM.WEB.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SAM.WEB.Resources;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CommissionController : ControllerBase
     {
         private readonly IAgentServices _agentServices;

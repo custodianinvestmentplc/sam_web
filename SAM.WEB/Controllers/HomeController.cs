@@ -21,7 +21,9 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
-using SAM.WEB.Services;
+using System.Diagnostics;
+using SAM.WEB.Errors;
+using System.Net;
 
 namespace SAM.WEB.Controllers
 {
@@ -30,14 +32,12 @@ namespace SAM.WEB.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly LoginConfig _config;
-        private readonly IUserServices _userServices;
         private readonly IAuthProvider _authProvider;
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public HomeController(IConfiguration configuration, IHttpClientFactory httpClientFactory, LoginConfig config, IUserServices userServices, IAuthProvider authprovider)
+        public HomeController(IConfiguration configuration, IHttpClientFactory httpClientFactory, LoginConfig config, IAuthProvider authprovider)
         {
             _config = config;
-            _userServices = userServices;
             _authProvider = authprovider;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
@@ -110,9 +110,8 @@ namespace SAM.WEB.Controllers
             }
         }
 
-
         [Authorize]
-        public async Task<IActionResult> Modules()
+        public IActionResult Modules()
         {
             //var indexVM = new IndexViewModel();
 
@@ -120,9 +119,11 @@ namespace SAM.WEB.Controllers
 
             try
             {
-                var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
+                //var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
 
                 //var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
+
+                var useremail = HttpContext.Session.Get<string>("userEmail");
 
                 if (!string.IsNullOrEmpty(useremail))
                 {
@@ -137,27 +138,19 @@ namespace SAM.WEB.Controllers
 
                     //var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
 
-                    var user = new UserRegisterDto
+                    var user = HttpContext.Session.Get<UserRegisterDto>("UserRegisterDto");
+
+                    if (user != null)
                     {
-                        UserDisplayName = "Emmanuel",
-                        UserRole = "Agent",
-                        BranchName = "BranchName1",
-                        AddedByEmail = useremail,
-                        BranchCode = "1",
-                        CreateDate = new DateTime(2022, 01, 06),
-                        JobDescription = "Agent",
-                        UserEmail = useremail,
-                        TableRowId = 1,
-                        UserRoleId = "1"
-                    };
+                        ViewBag.Module = user.UserRole.ToLower();
 
-                    ViewBag.Module = user.UserRole.ToLower();
+                        ViewBag.Username = user.UserDisplayName;
 
-                    ViewBag.Username = user.UserDisplayName;
+                        log.Info($"{DateTime.Now.ToString()} - Logged in the User {useremail}");
 
-                    log.Info($"{DateTime.Now.ToString()} - Logged in the User {useremail}");
-
-                    return View(Url.Content("/Views/Home/AppList.cshtml"));
+                        return View(Url.Content("/Views/Home/AppList.cshtml"));
+                    }
+                    else throw new Exception("No User found.");
                 }
 
                 TempData["ErrorTitle"] = "Unable to retreive user email";
@@ -176,9 +169,25 @@ namespace SAM.WEB.Controllers
                 return RedirectToAction("Index", "Home");
             }
         }
+
+        [HttpGet]
+        public IActionResult Error([FromQuery] string errorcode, string message, string detail)
+        {
+            TempData["Error"] = $"Error message\r\n {message}.";
+
+            ViewBag.ShowLayout = false;
+
+            return View(new ApiExceptionsResponse(errorcode, message, detail));
+        }
     }
 }
 
 
+
+//[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+//public IActionResult Error()
+//{
+//    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+//}
 
 //if (string.IsNullOrWhiteSpace(indexVM.ErrorTitle) && string.IsNullOrWhiteSpace(indexVM.ErrorDescription))

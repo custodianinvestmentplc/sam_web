@@ -9,11 +9,13 @@ using Microsoft.Extensions.Configuration;
 using System.Net.Http;
 using SAM.WEB.Services;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BranchesController : ControllerBase
     {
         private readonly ICPCHubServices _cpcServices;

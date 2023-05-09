@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using SAM.WEB.Domain.Dtos;
 using System.Collections.Generic;
-using SAM.WEB.Services;
 
 namespace SAM.WEB.Controllers
 {
@@ -64,9 +63,9 @@ namespace SAM.WEB.Controllers
 
             try
             {
-                var useremail = ControllerHelper.GetAppUserFromHttpContext(HttpContext);
-
                 //var url = _configuration.GetValue<string>("AppSettings:AuthUrl");
+
+                var useremail = HttpContext.Session.Get<string>("userEmail");
 
                 if (!string.IsNullOrEmpty(useremail))
                 {
@@ -79,27 +78,18 @@ namespace SAM.WEB.Controllers
 
                     //var user = await DataServices<UserRegisterDto>.GetPayload(uri, _httpClientFactory);
 
-                    var user = new UserRegisterDto
+
+                    var user = HttpContext.Session.Get<UserRegisterDto>("UserRegisterDto");
+
+                    if (user != null)
                     {
-                        UserDisplayName = "Emmanuel",
-                        UserRole = "Agent",
-                        BranchName = "BranchName1",
-                        AddedByEmail = useremail,
-                        BranchCode = "1",
-                        CreateDate = new DateTime(2022, 01, 06),
-                        JobDescription = "Agent",
-                        UserEmail = useremail,
-                        TableRowId = 1,
-                        UserRoleId = "1"
-                    };
+                        ViewBag.Module = user.UserRole.ToLower();
 
-                    ViewBag.Module = user.UserRole.ToLower();
+                        ViewBag.Username = user.UserDisplayName;
 
-                    ViewBag.Username = user.UserDisplayName;
-
-                    log.Info($"{DateTime.Now.ToString()} - Logged in the User {useremail}");
-
-                    return View(Url.Content($"/Views/Modules/{route}.cshtml"));
+                        return View(Url.Content($"/Views/Modules/{route}.cshtml"));
+                    }
+                    else throw new Exception("No User found.");
                 }
 
                 TempData["ErrorTitle"] = "Unable to retreive user email";

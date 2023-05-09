@@ -1,0 +1,48 @@
+﻿@*Set model*@
+
+@*@{
+    var hFormat = "<li><a href=\" / \" title=\" {0} \">{0}</a></li>";
+    var home_link = string.Format(hFormat, configuration["locales:homepage:breadcrumbs:home"]);
+
+    var curLink = "";
+
+    if (ViewBag.CurrentController == "home")
+    {
+        if (ViewBag.CurrentPage == "product")
+        {
+            curLink = $" {home_link} <li> <a asp-controller=\"Home\" asp-action =\"CollectionList\" asp-all-route-data = \"Collection.Id\" </a></li>";
+        }
+        else if (ViewBag.CurrentPage == "collection")
+        {
+            curLink = $" {home_link} <li> <span>Model?.Collection.Name</span></li>";
+
+        }
+        else if (ViewBag.CurrentPage == "article")
+        {
+            curLink = $" {home_link} <li> blog.title | link_to: blog.url </li> <li> article.title </li>";
+        }
+        else if (ViewBag.CurrentPage == "page")
+        {
+            curLink = $" {home_link} <li> <span> page.title </span></li>";
+        }
+        else
+        {
+            curLink = home_link;
+        }
+
+    }
+}*@
+
+
+@*<div class="holder mt-0">
+    <div class="container">
+        <ul class="breadcrumbs">
+            @curLink
+        </ul>
+    </div>
+</div>*@
+
+
+
+
+

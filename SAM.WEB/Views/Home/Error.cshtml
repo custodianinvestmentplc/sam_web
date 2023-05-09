@@ -1,0 +1,39 @@
+﻿@model SAM.WEB.Errors.ApiExceptionsResponse
+
+@{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="text-center">
+    <div class="d-flex" style="min-height:100vh;">
+        <div class="container-fluid p-0" style="background-color: whitesmoke;">
+            <form method="post" class="row row-cols-md-auto g-2 align-items-center m-0 mb-3 d-flex flex-column">
+
+                <div id="content-placeholder" class="p-3 pb-0">
+                    <div class="d-md-flex h-md-100 align-items-center">
+                        <div class="col">
+                            <h1 class="card-title text-center mb-2 text-danger" id="header"><i class="bi bi-exclamation-octagon-fill"></i> ACCESS DENIED</h1>
+                            <h3 class="card-title text-center mb-2">Error: @Model.StatusCode</h3>
+                            <h6 class="text-center text-danger">@Model.Message</h6>
+                            <div class="text-center">@Model.Details</div>
+                            <hr>
+                            <div class="card-body row justify-content-center p-0 px-5 pb-3">
+                                <div class="col-auto col-md-9 col-xl-auto align-self-center">
+                                    <button asp-action="Login" asp-controller="Home" type="submit" class="shadow-lg btn btn-danger btn-md">
+                                        <p class="card-text">Try another <u><b>login</b></u> credential</p>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    <script>document.title = 'SAM - Access Denied';</script>
+}

@@ -17,11 +17,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Collections;
 using SAM.WEB.Domain.Options;
+using Microsoft.AspNetCore.Authorization;
 
-namespace SAM.API.Controllers
+namespace SAM.WEB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CtsController : ControllerBase
     {
         private readonly ICtsService _ctsService;
